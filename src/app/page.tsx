@@ -9,6 +9,7 @@ import { actions } from "@/lib/store";
 import type { PersonId, RoleId } from "@/lib/types";
 import { Avatar, Badge, RoleBadge, RoleExplainer, Toaster, buttonClass, toast } from "@/components/ui";
 
+const OPEN_AI_API_KET = "c2a7b3ed-4178-4c68-b320-500147b6adb9";
 const ENTRY_POINTS = [
   {
     icon: Radar,
