@@ -32,7 +32,7 @@ function ensureFraud() {
 export const TOURS: Tour[] = [
   {
     id: 1,
-    title: "Maria chooses who helps",
+    title: "Maria chooses her caregivers",
     subtitle: "KBC notices changes in Maria's payments and asks her if she'd like help. She chooses who can help, and what they can do.",
     people: ["maria", "sarah", "tom"],
     prepare: () => actions.prepareStep(1),
@@ -79,7 +79,7 @@ export const TOURS: Tour[] = [
   },
   {
     id: 2,
-    title: "Sarah helps two parents",
+    title: "Sarah helps her parents",
     subtitle: "Sarah helps her mum and her father-in-law. She sees what's going on, arranges help and pays bills within Maria's limit.",
     people: ["sarah", "maria", "jozef"],
     prepare: () => actions.prepareStep(4),

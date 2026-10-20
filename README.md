@@ -19,9 +19,9 @@ British spelling, real KBC names (KBC Mobile, Kate, KBC Live, Secure4u, itsme).
 
 ## The three paths
 
-1. **Maria chooses who helps**: KBC notices signals and asks Maria herself; Maria picks Sarah (Pay),
+1. **Maria chooses her caregivers**: KBC notices signals and asks Maria herself; Maria picks Sarah (Pay),
    Tom (View) and Ann (Alerts) plus a fraud rule; Tom joins as a guest via itsme; Maria revokes access in one tap.
-2. **Sarah helps two parents**: Sarah switches between Maria and Jozef, opens Maria's assets, requests Wit-Gele Kruis and a
+2. **Sarah helps her parents**: Sarah switches between Maria and Jozef, opens Maria's assets, requests Wit-Gele Kruis and a
    stair lift with a KBC renovation loan, pays a bill on Maria's behalf, and Maria approves a payment above her limit.
 3. **Stopping a fraud attempt**: a fraud attempt triggers Maria's rule: Sarah gets a notification, Ann sees an alert without
    amounts, Sarah blocks the transfer with KBC; the path ends on the value and scale view.
