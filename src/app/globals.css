@@ -1,26 +1,75 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  --color-navy: #0a2b57;
+  --color-navy-soft: #1d4378;
+  --color-brand: #009fdf;
+  --color-brand-soft: #e5f5fc;
+  --color-brand-mist: #f1f9fe;
+  --color-ink: #12233b;
+  --color-muted: #5a6b82;
+  --color-faint: #8b99ad;
+  --color-line: #e2e8f0;
+  --color-canvas: #f4f7fb;
+  --color-calm: #1d8a5e;
+  --color-calm-soft: #e6f5ee;
+  --color-attention: #b25e09;
+  --color-attention-soft: #fdf3e5;
+  --color-itsme: #ff4612;
+
+  --radius-card: 1.25rem;
+
+  --animate-slide-down: slide-down 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-slide-up: slide-up 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-fade-in: fade-in 260ms ease-out;
+  --animate-pop: pop 520ms cubic-bezier(0.22, 1.4, 0.36, 1);
+
+  @keyframes slide-down {
+    from { transform: translateY(-120%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes slide-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
   }
 }
 
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  height: 100%;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Hide scrollbars inside the phone frame, keep scrolling. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
 }

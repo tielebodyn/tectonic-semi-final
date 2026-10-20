@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# KBC Mantel — clickable proof of concept
 
-## Getting Started
+A demo for the KBC hackathon final: one place where families coordinate care for an ageing parent,
+while **the parent holds the key**. Everything runs on dummy data in the browser; there is no backend.
 
-First, run the development server:
+## Run it
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. The start screen has shortcuts to every demo step and a "Demo resetten" button.
+On a desktop screen the app renders inside a phone frame, with the demo controls (steps, "Bekijk als",
+KBC-zicht, reset) on the left. On a phone, the same controls sit behind the "Demo" button.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Demo script (under 3 minutes)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. KBC notices signals on Maria's account and asks Maria (never the child) — `/onboarding/signaal`
+2. Maria picks Sarah (Handelen), Tom (Inzage), Ann (Meldingen) and a fraud rule — `/onboarding/ouder`
+3. Tom joins as a guest via a simulated itsme flow — `/gast`
+4. Sarah switches between Maria and Jozef, opens assets, requests Wit-Gele Kruis and a stair lift with a renovation loan — `/app`
+5. Sarah pays a bill on Maria's behalf; above the limit Maria approves in her own view — `/app/betalen`, `/maria/goedkeuren`
+6. A fraud attempt is stopped thanks to Maria's rule — `/app/fraude`
+7. Triple-win view and scale slide for the jury — `/kbc`
 
-## Learn More
+Each step shortcut prepares the state it needs, so steps can be shown in any order.
 
-To learn more about Next.js, take a look at the following resources:
+## Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/lib/data.ts` — personas, assets, signals, partner services, care homes (static dummy data)
+- `src/lib/store.ts` — demo state (roles, rules, bills, audit log, fraud state) persisted in `localStorage`
+- `src/lib/demo-steps.ts` — the scripted demo steps
+- `src/app/(phone)/app/*` — family app (dashboard, circle, assets, signals, services, pay, fraud, log)
+- `src/app/(phone)/maria/*` — the elderly person's senior-friendly screens (home, consent centre, approvals)
+- `src/app/(phone)/onboarding/*`, `src/app/(phone)/gast` — the four entry points
+- `src/app/kbc` — triple-win and scale view
