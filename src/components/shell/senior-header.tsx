@@ -15,12 +15,12 @@ export function SeniorHeader({ backHref, label = "Mijn Mantel" }: { backHref?: s
           <ArrowLeft className="size-7" aria-hidden /> Terug
         </Link>
       ) : (
-        <span className="flex items-center gap-2.5 text-navy">
+        <Link href="/" className="flex items-center gap-2.5 text-navy">
           <span className="flex size-10 items-center justify-center rounded-2xl bg-navy text-white">
             <KeyRound className="size-5" aria-hidden />
           </span>
           <span className="text-xl font-bold">{label}</span>
-        </span>
+        </Link>
       )}
       <span className="rounded-full bg-canvas px-3 py-1 text-sm font-semibold text-muted">Grote letters</span>
     </header>

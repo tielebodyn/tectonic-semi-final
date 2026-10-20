@@ -44,10 +44,12 @@ export type DemoState = {
   fraudAnswer: "none" | "not-me";
   push: PushNotification | null;
   childSpace: { budget: number; checklist: string[] };
+  /** The guided demo path the jury is clicking through */
+  tour: { path: number; step: number } | null;
 };
 
 const STORAGE_KEY = "kbc-mantel-demo";
-const VERSION = 4;
+const VERSION = 5;
 
 const FRAUD_RULE = "Als er iets verdachts gebeurt op mijn rekening";
 
@@ -93,6 +95,7 @@ function initialState(): DemoState {
     fraudAnswer: "none",
     push: null,
     childSpace: { budget: 150, checklist: [] },
+    tour: null,
   };
 }
 
@@ -434,6 +437,13 @@ export const actions = {
   },
 
   // Demo control -----------------------------------------------------------------
+  setTour(tour: DemoState["tour"]) {
+    set((s) => ({ ...s, tour }));
+  },
+  /** Make sure Maria's Mantel exists with the standard circle (for skipped steps). */
+  ensureMariaMantel() {
+    if (load().mantel.maria !== "active") actions.activateMantel("maria", MARIA_DEFAULT_PEOPLE, MARIA_DEFAULT_RULES, ELDERS.maria.limit);
+  },
   reset() {
     set(() => initialState());
   },

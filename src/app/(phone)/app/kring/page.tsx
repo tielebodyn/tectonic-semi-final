@@ -1,18 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { BadgeCheck, Fingerprint, KeyRound, Mail, UserPlus } from "lucide-react";
 import { PEOPLE, ROLES, fullName, poss } from "@/lib/data";
 import { longDate } from "@/lib/format";
-import { actions } from "@/lib/store";
 import { useCurrent } from "@/lib/use-current";
 import type { RoleId } from "@/lib/types";
 import { Avatar, Badge, Button, Card, RoleBadge, RoleExplainer, SectionTitle, Sheet, toast, wait } from "@/components/ui";
 
 export default function CirclePage() {
   const { s, elder, elderPerson, viewer, link, limit } = useCurrent();
-  const router = useRouter();
   const [suggest, setSuggest] = useState(false);
   const [sending, setSending] = useState(false);
   const name = elderPerson.firstName;
@@ -80,23 +77,9 @@ export default function CirclePage() {
 
       <Card className="mt-4 space-y-3">
         <p className="text-sm text-ink">Wilt u iemand toevoegen of een rol wijzigen? Dat kan enkel {name}. U kan het wel voorstellen.</p>
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="soft" onClick={() => setSuggest(true)}>
-            <UserPlus className="size-4" aria-hidden /> Stel iemand voor
-          </Button>
-          {elder === "maria" && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                actions.setViewer("maria", "maria");
-                router.push("/maria/toestemming");
-              }}
-            >
-              Demo: bekijk als {name}
-            </Button>
-          )}
-        </div>
+        <Button size="sm" variant="soft" onClick={() => setSuggest(true)}>
+          <UserPlus className="size-4" aria-hidden /> Stel iemand voor
+        </Button>
       </Card>
 
       <SectionTitle>De drie rollen</SectionTitle>

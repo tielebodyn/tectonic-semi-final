@@ -317,19 +317,6 @@ function ParentOnboarding() {
               <Button size="xl" full onClick={() => router.push("/maria")}>
                 Naar mijn Mantel
               </Button>
-              {selected.includes("tom") && (
-                <Button
-                  size="lg"
-                  full
-                  variant="soft"
-                  onClick={() => {
-                    actions.setViewer("tom", "maria");
-                    router.push("/gast");
-                  }}
-                >
-                  Demo: Tom krijgt de uitnodiging
-                </Button>
-              )}
             </div>
           </div>
         )}

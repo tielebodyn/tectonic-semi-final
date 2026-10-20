@@ -18,7 +18,6 @@ export default function ApprovalPage() {
 
 function Approval() {
   const s = useDemo();
-  const router = useRouter();
   const [phase, setPhase] = useState<"ask" | "busy" | "approved" | "declined">("ask");
   const [doneId, setDoneId] = useState<string | null>(null);
 
@@ -45,19 +44,7 @@ function Approval() {
         <SuccessMark large />
         <h1 className="mt-6 text-3xl font-bold">{phase === "approved" ? "Betaald" : "Niet betaald"}</h1>
         <p className="mt-3 text-ink">{phase === "approved" ? `${who} krijgt bericht dat de betaling gebeurd is.` : `${who} krijgt bericht dat u nee zei.`}</p>
-        <Button
-          size="xl"
-          full
-          className="mt-8"
-          onClick={() => {
-            actions.setViewer("sarah", "maria");
-            router.push("/app/logboek");
-          }}
-          variant="soft"
-        >
-          Demo: terug naar Sarah
-        </Button>
-        <ButtonLink href="/maria" size="xl" full variant="secondary" className="mt-3">
+        <ButtonLink href="/maria" size="xl" full variant="secondary" className="mt-8">
           Klaar
         </ButtonLink>
       </div>

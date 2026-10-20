@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { BatteryFull, BellRing, Signal, Wifi } from "lucide-react";
 import { actions, useDemo, useHydrated } from "@/lib/store";
 import { Toaster, cx } from "@/components/ui";
-import { DemoRail, MobileDemoButton } from "./demo-rail";
+import { TourAutoAdvance, TourBar, TourPanel } from "./tour-guide";
 
 export function PhoneShell({ children }: { children: ReactNode }) {
   const hydrated = useHydrated();
@@ -18,17 +18,20 @@ export function PhoneShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-dvh bg-canvas lg:flex lg:items-center lg:justify-center lg:gap-12 lg:bg-[radial-gradient(ellipse_at_top_left,#e3f3fc,transparent_55%),radial-gradient(ellipse_at_bottom_right,#e8eef8,transparent_50%)] lg:p-6">
-      <DemoRail className="hidden lg:flex" />
+      {hydrated ? <TourPanel /> : <div className="hidden w-[320px] shrink-0 lg:block" aria-hidden />}
       <div className="relative mx-auto flex h-dvh w-full flex-col overflow-hidden bg-canvas lg:mx-0 lg:h-[min(880px,calc(100dvh-48px))] lg:w-[400px] lg:shrink-0 lg:rounded-[52px] lg:shadow-[0_40px_80px_-20px_rgba(10,43,87,0.35)] lg:ring-[11px] lg:ring-[#0c1a2c]">
         <StatusBar />
         <div id="phone-scroll" className="relative flex-1 overflow-y-auto overscroll-contain no-scrollbar">
           {hydrated ? children : null}
         </div>
+        {hydrated && <TourBar />}
+        {hydrated && <TourAutoAdvance />}
         <div id="overlay-root" className="pointer-events-none absolute inset-0 z-40" />
         {hydrated && <PushBanner />}
         <Toaster />
       </div>
-      <MobileDemoButton />
+      {/* Mirrors the guide panel so the phone stays centred on desktop. */}
+      <div className="hidden w-[320px] shrink-0 lg:block" aria-hidden />
     </div>
   );
 }

@@ -26,7 +26,6 @@ export default function PayPage() {
 
 function PayFlow() {
   const { s, elder, elderPerson, canAct, viewer, limit, link } = useCurrent();
-  const router = useRouter();
   const [phase, setPhase] = useState<Phase>("list");
   const [billId, setBillId] = useState<string | null>(null);
   const name = elderPerson.firstName;
@@ -136,19 +135,6 @@ function PayFlow() {
             ? `${euro(bill.amount)} aan ${bill.payee}. ${name} kreeg hiervan meteen een melding.`
             : `${euro(bill.amount)} is meer dan de limiet van €${limit}. ${name} beslist zelf, in haar eigen app.`}
         </p>
-
-        {phase === "approval-sent" && (
-          <Button
-            className="mt-5"
-            variant="soft"
-            onClick={() => {
-              actions.setViewer(elder, elder);
-              router.push("/maria/goedkeuren");
-            }}
-          >
-            Demo: bekijk het scherm van {name}
-          </Button>
-        )}
 
         <div className="mt-6 text-left">
           <SectionTitle action={<Link href="/app/logboek" className="text-xs font-semibold text-brand">Volledig logboek</Link>}>Logboek</SectionTitle>

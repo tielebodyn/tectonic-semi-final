@@ -20,12 +20,12 @@ export function AppHeader() {
   return (
     <header className="relative z-30 bg-navy px-4 pb-4 pt-3 text-white">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2" aria-label="KBC Mantel, naar de demopaden">
           <span className="flex size-7 items-center justify-center rounded-lg bg-white/10">
             <KeyRound className="size-3.5" aria-hidden />
           </span>
           <span className="text-[15px] font-bold tracking-tight">KBC Mantel</span>
-        </div>
+        </Link>
         <div className="flex items-center gap-2">
           <Link href={role === "meldingen" ? "/app" : "/app/signalen"} className="relative rounded-full p-2 hover:bg-white/10" aria-label="Meldingen">
             <Bell className="size-5" />

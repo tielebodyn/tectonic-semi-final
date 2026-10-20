@@ -4,7 +4,7 @@ import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, ChevronRight, KeyRound, Lock, ShieldCheck } from "lucide-react";
 import { actions, useDemo } from "@/lib/store";
-import { Avatar, Button, Card, RoleExplainer, Spinner, SuccessMark, wait } from "@/components/ui";
+import { Avatar, Button, ButtonLink, Card, RoleExplainer, Spinner, SuccessMark, wait } from "@/components/ui";
 
 type Step = "sms" | "landing" | "itsme" | "confirming" | "done";
 
@@ -29,16 +29,9 @@ function GuestFlow() {
         <Lock className="mx-auto size-8 text-muted" aria-hidden />
         <h1 className="mt-3 text-xl font-bold">Er is (nog) geen uitnodiging voor Tom</h1>
         <p className="mt-2 text-sm text-muted">Maria beslist zelf wie ze uitnodigt.</p>
-        <Button
-          className="mt-6"
-          variant="soft"
-          onClick={() => {
-            actions.prepareStep(3);
-            setStep("sms");
-          }}
-        >
-          Demo: Maria nodigt Tom uit
-        </Button>
+        <ButtonLink href="/" className="mt-6" variant="soft">
+          Terug naar de demo
+        </ButtonLink>
       </div>
     );
   }
