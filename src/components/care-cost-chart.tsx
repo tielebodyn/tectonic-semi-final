@@ -8,9 +8,9 @@ import { cx } from "@/components/ui";
 
 // Validated categorical order (light surface): nursing, pharmacy, home help.
 const SERIES = [
-  { key: "nursing", label: "Thuisverpleging", color: "#1f5fa8" },
-  { key: "pharmacy", label: "Apotheek", color: "#3fb0e0" },
-  { key: "help", label: "Gezinszorg & dagverzorging", color: "#d9962b" },
+  { key: "nursing", label: "Home nursing", color: "#1f5fa8" },
+  { key: "pharmacy", label: "Pharmacy", color: "#3fb0e0" },
+  { key: "help", label: "Home help & day care", color: "#d9962b" },
 ] as const;
 
 export function CareCostChart({ elder }: { elder: ElderId }) {
@@ -26,17 +26,17 @@ export function CareCostChart({ elder }: { elder: ElderId }) {
     <div>
       <div className="flex items-end justify-between">
         <div>
-          <p className="text-xs font-medium text-muted">Zorgkosten {focused.month === data[data.length - 1].month ? "deze maand" : `in ${focused.month}`}</p>
+          <p className="text-xs font-medium text-muted">Care costs {focused.month === data[data.length - 1].month ? "this month" : `in ${focused.month}`}</p>
           <p className="text-2xl font-bold tabular-nums text-ink">{euro(totals[focus])}</p>
         </div>
         <p className="text-right text-xs text-muted">
-          gemiddeld {euro0(totals.reduce((a, b) => a + b, 0) / totals.length)}
+          average {euro0(totals.reduce((a, b) => a + b, 0) / totals.length)}
           <br />
-          per maand
+          per month
         </p>
       </div>
 
-      <div className="relative mt-4 flex h-36 items-end gap-2.5" role="img" aria-label="Zorgkosten per maand, laatste zes maanden">
+      <div className="relative mt-4 flex h-36 items-end gap-2.5" role="img" aria-label="Care costs per month, last six months">
         {data.map((d, i) => (
           <button
             key={d.month}

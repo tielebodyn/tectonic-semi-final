@@ -10,55 +10,55 @@ type Metric = { value: number; prefix?: string; suffix?: string; decimals?: numb
 const COLUMNS: { id: string; title: string; subtitle: string; icon: typeof Users; tone: string; metrics: Metric[] }[] = [
   {
     id: "familie",
-    title: "Familie",
-    subtitle: "Rust, tijd en langer thuis",
+    title: "Family",
+    subtitle: "Maria and her children",
     icon: HeartHandshake,
     tone: "bg-rose-50 text-rose-700",
     metrics: [
-      { value: 14, prefix: "+", suffix: " mnd", label: "langer thuis wonen", note: "Door tijdige thuiszorg, woningaanpassing en een personenalarm." },
-      { value: 165, prefix: "€", suffix: "/mnd", label: "zorgkost na premies", note: "Van €248 naar €165 voor Maria, dankzij zorgbudget en hospitalisatiedekking." },
-      { value: 6, suffix: " u/week", label: "coördinatie bespaard", note: "Eén plek voor zorg, facturen en afspraken in plaats van tien apps en telefoontjes." },
-      { value: 2450, prefix: "€", label: "fraude voorkomen", note: "Maria's eigen regel verwittigde Sarah en Ann op tijd." },
+      { value: 14, prefix: "+", suffix: " months", label: "longer at home", note: "Through earlier home care, home adaptations and a personal alarm." },
+      { value: 165, prefix: "€", suffix: "/month", label: "care costs after allowances", note: "Maria: down from €248, through the care allowance and hospitalisation cover." },
+      { value: 6, suffix: " hrs/week", label: "less coordination time", note: "Care, bills and appointments in one place, instead of separate apps and calls." },
+      { value: 2450, prefix: "€", label: "fraud prevented", note: "Maria's own rule alerted Sarah and Ann in time." },
     ],
   },
   {
     id: "kbc",
     title: "KBC",
-    subtitle: "Groei vanuit vertrouwen",
+    subtitle: "Lending, insurance and fee income",
     icon: Landmark,
     tone: "bg-brand-soft text-navy",
     metrics: [
-      { value: 56, prefix: "€", suffix: " M", label: "renovatieleningen", note: "Trapliften, badkamers en woningaanpassingen, ca. 8.200 leningen per jaar." },
-      { value: 12400, prefix: "+", label: "verzekeringen", note: "Hospital Care, woon- en familiale polissen, op het juiste moment aangeboden." },
-      { value: 3.8, prefix: "€", suffix: " M", decimals: 1, label: "doorverwijsvergoedingen", note: "Van partners voor gekwalificeerde aanvragen, per jaar." },
-      { value: 2.1, prefix: "€", suffix: " mia", decimals: 1, label: "vermogen blijft in de familie", note: "Een vertrouwde relatie met de volgende generatie, vóór de erfenis." },
-      { value: 18, suffix: "%", label: "gasten worden klant", note: "Tom leert KBC kennen zonder verplichting, binnen 12 maanden." },
-      { value: 9.6, prefix: "€", suffix: " M", decimals: 1, label: "fraudeverlies vermeden", note: "Per jaar, bij klanten van 75+, dankzij regels van de ouder zelf." },
-      { value: 3.4, suffix: "×", decimals: 1, label: "meer app-gebruik", note: "Mantelzorgers openen de app wekelijks, niet maandelijks." },
+      { value: 56, prefix: "€", suffix: "M", label: "renovation loans", note: "Stair lifts, bathrooms and home adaptations. About 8,200 loans a year." },
+      { value: 12400, prefix: "+", label: "insurance policies", note: "Hospital Care, home and family liability, offered when the need arises." },
+      { value: 3.8, prefix: "€", suffix: "M", decimals: 1, label: "referral fees", note: "Per year, paid by partners for qualified requests." },
+      { value: 2.1, prefix: "€", suffix: "bn", decimals: 1, label: "assets retained", note: "The children already bank with KBC when the inheritance is settled." },
+      { value: 18, suffix: "%", label: "guests become customers", note: "Within 12 months. Guests like Tom can use the Mantel without being a KBC customer." },
+      { value: 9.6, prefix: "€", suffix: "M", decimals: 1, label: "fraud losses avoided", note: "Per year, among customers aged 75+, through rules set by the parent." },
+      { value: 3.4, suffix: "×", decimals: 1, label: "app sessions per carer", note: "Carers open KBC Mobile weekly rather than monthly." },
     ],
   },
   {
     id: "partners",
     title: "Partners",
-    subtitle: "Wit-Gele Kruis, Farmaline, woonzorggroepen…",
+    subtitle: "Wit-Gele Kruis, Farmaline, care home groups",
     icon: Handshake,
     tone: "bg-emerald-50 text-emerald-700",
     metrics: [
-      { value: 46000, label: "gekwalificeerde leads per jaar", note: "Met context: regio, zorgnood en toestemming van de oudere." },
-      { value: 38, suffix: "%", label: "conversie", note: "Tegenover ca. 9% via klassieke kanalen, omdat de vraag echt en tijdig is." },
-      { value: 62, prefix: "−", suffix: "%", label: "acquisitiekost", note: "Geen dure campagnes: KBC brengt de juiste familie op het juiste moment." },
-      { value: 4, suffix: " dagen", label: "sneller opgestart", note: "Van eerste vraag tot eerste huisbezoek of levering." },
+      { value: 46000, label: "qualified leads a year", note: "With context: region, care need and the parent's consent." },
+      { value: 38, suffix: "%", label: "conversion", note: "Compared with about 9% through traditional channels." },
+      { value: 62, prefix: "−", suffix: "%", label: "acquisition cost", note: "Requests come in through KBC when a need arises, without marketing campaigns." },
+      { value: 4, suffix: " days", label: "faster start", note: "From first request to first home visit or delivery." },
     ],
   },
 ];
 
 const TEMPLATES = [
-  "Ouder die alleen woont",
-  "Na een ziekenhuisopname",
-  "Beginnende dementie",
-  "Verhuis naar een woonzorgcentrum",
-  "Na het overlijden van een partner",
-  "Kind met een zorgnood",
+  "Parent living alone",
+  "After a hospital stay",
+  "Early-stage dementia",
+  "Moving into a care home",
+  "After the death of a partner",
+  "Child with care needs",
 ];
 
 export default function KbcView() {
@@ -69,20 +69,20 @@ export default function KbcView() {
       <header className="sticky top-0 z-10 border-b border-line bg-white/95 px-4 pb-3 pt-3 backdrop-blur">
         <div className="flex items-center justify-between">
           <Link href="/app" className="inline-flex items-center gap-1 text-sm font-semibold text-navy">
-            <ArrowLeft className="size-4" aria-hidden /> Klantzicht
+            <ArrowLeft className="size-4" aria-hidden /> Customer view
           </Link>
           <span className="flex items-center gap-2 text-sm font-bold text-navy">
             <span className="flex size-7 items-center justify-center rounded-lg bg-navy text-white">
               <KeyRound className="size-3.5" aria-hidden />
             </span>
-            KBC-zicht
+            KBC view
           </span>
         </div>
         <div className="mt-3 grid grid-cols-2 rounded-full bg-canvas p-1 text-sm font-semibold" role="tablist">
           {(
             [
-              ["win", "Triple win"],
-              ["scale", "Schaal"],
+              ["win", "Value"],
+              ["scale", "Scale"],
             ] as const
           ).map(([id, label]) => (
             <button
@@ -108,9 +108,9 @@ function TripleWin() {
   const [open, setOpen] = useState("familie");
   return (
     <>
-      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand">Triple win</p>
-      <h1 className="mt-1.5 text-2xl font-bold leading-tight tracking-tight text-ink">Goed voor de familie, voor KBC en voor de partners.</h1>
-      <p className="mt-3 text-sm text-muted">Omdat de ouder de sleutel houdt, vertrouwt de familie KBC met de belangrijkste beslissingen.</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand">Value</p>
+      <h1 className="mt-1.5 text-2xl font-bold leading-tight tracking-tight text-ink">What KBC Mantel brings families, KBC and partners</h1>
+      <p className="mt-3 text-sm text-muted">Because the parent decides who has access, families are comfortable arranging care and money through KBC.</p>
 
       <div className="mt-5 space-y-3">
         {COLUMNS.map((col) => {
@@ -147,7 +147,7 @@ function TripleWin() {
           );
         })}
       </div>
-      <p className="mt-5 text-[11px] text-faint">Indicatieve demo-cijfers bij 150.000 actieve Mantels. Geen echte KBC-data.</p>
+      <p className="mt-5 text-[11px] text-faint">Indicative demo figures, based on 150,000 active Mantels. Not actual KBC data.</p>
     </>
   );
 }
@@ -155,17 +155,17 @@ function TripleWin() {
 function Scale() {
   return (
     <>
-      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand">Schaal</p>
-      <h1 className="mt-1.5 text-2xl font-bold leading-tight tracking-tight text-ink">Eén Mantel-sjabloon. Miljoenen klanten.</h1>
-      <p className="mt-3 text-sm text-muted">Maria is geen maatwerk. Haar Mantel is een sjabloon: rollen, regels, signalen en partners per regio.</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand">Scale</p>
+      <h1 className="mt-1.5 text-2xl font-bold leading-tight tracking-tight text-ink">How KBC Mantel scales</h1>
+      <p className="mt-3 text-sm text-muted">Maria’s Mantel is set up from a standard template of roles, rules, insights and regional partners.</p>
 
       <section className="mt-5 rounded-3xl bg-navy p-5 text-white">
-        <h2 className="text-sm font-semibold text-white/70">Uitrol (indicatief)</h2>
+        <h2 className="text-sm font-semibold text-white/70">Roll-out (indicative)</h2>
         <div className="mt-4 space-y-4">
           {[
-            { year: "Jaar 1", value: 25000, label: "Mantels in Vlaanderen" },
-            { year: "Jaar 3", value: 150000, label: "Mantels in België" },
-            { year: "Jaar 5", value: 400000, label: "Mantels in de KBC-groep" },
+            { year: "Year 1", value: 25000, label: "Mantels in Flanders" },
+            { year: "Year 3", value: 150000, label: "Mantels in Belgium" },
+            { year: "Year 5", value: 400000, label: "Mantels across KBC Group" },
           ].map((r) => (
             <div key={r.year} className="flex items-baseline justify-between gap-3">
               <div>
@@ -180,10 +180,10 @@ function Scale() {
         </div>
         <div className="mt-5 space-y-2">
           {[
-            { icon: Users, text: "Gemiddeld 3,2 mensen per Mantel: één ouder, drie gezinnen bereikt." },
-            { icon: ShieldCheck, text: "Toestemming is het product: overal dezelfde rollen en regels." },
-            { icon: MapIcon, text: "Partnercatalogus per regio, ingeplugd via één API." },
-            { icon: Layers, text: "Signaalmodellen herbruikbaar over alle klanten." },
+            { icon: Users, text: "On average 3.2 people per Mantel, across three households." },
+            { icon: ShieldCheck, text: "The same roles and consent rules apply in every Mantel." },
+            { icon: MapIcon, text: "Partner catalogue per region, connected through one API." },
+            { icon: Layers, text: "The same insight models are used for all customers." },
           ].map(({ icon: Icon, text }) => (
             <p key={text} className="flex items-start gap-3 rounded-2xl bg-white/[0.07] p-3 text-sm">
               <Icon className="mt-0.5 size-4 shrink-0 text-brand" aria-hidden /> {text}
@@ -194,9 +194,9 @@ function Scale() {
 
       <section className="mt-4 rounded-3xl bg-canvas p-5">
         <h2 className="flex items-center gap-2 font-bold text-ink">
-          <Copy className="size-4 text-navy" aria-hidden /> Sjablonen
+          <Copy className="size-4 text-navy" aria-hidden /> Templates
         </h2>
-        <p className="mt-1 text-xs text-muted">Configuratie, geen nieuwe app per situatie.</p>
+        <p className="mt-1 text-xs text-muted">Each situation is set up from a template. No new app is needed.</p>
         <ul className="mt-4 space-y-2">
           {TEMPLATES.map((t, i) => (
             <li key={t} className="flex items-center gap-3 rounded-2xl bg-white p-3 ring-1 ring-line/70">
@@ -208,7 +208,7 @@ function Scale() {
           ))}
         </ul>
       </section>
-      <p className="mt-5 text-[11px] text-faint">Indicatieve demo-cijfers. Geen echte KBC-data.</p>
+      <p className="mt-5 text-[11px] text-faint">Indicative demo figures. Not actual KBC data.</p>
     </>
   );
 }
@@ -229,7 +229,7 @@ function CountUp({ metric }: { metric: Metric }) {
       if (ref.current) cancelAnimationFrame(ref.current);
     };
   }, [metric.value]);
-  const text = v.toLocaleString("nl-BE", { minimumFractionDigits: metric.decimals ?? 0, maximumFractionDigits: metric.decimals ?? 0 });
+  const text = v.toLocaleString("en-GB", { minimumFractionDigits: metric.decimals ?? 0, maximumFractionDigits: metric.decimals ?? 0 });
   return (
     <>
       {metric.prefix}

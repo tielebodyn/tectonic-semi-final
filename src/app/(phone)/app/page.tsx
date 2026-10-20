@@ -19,7 +19,7 @@ import {
   Store,
   Users,
 } from "lucide-react";
-import { PEOPLE, RECURRING, SERVICES, SIGNALS, TASKS, fullName } from "@/lib/data";
+import { PEOPLE, RECURRING, SERVICES, SIGNALS, TASKS, poss, subj } from "@/lib/data";
 import { euro, greeting, shortDate } from "@/lib/format";
 import { actions, FRAUD_TX } from "@/lib/store";
 import { useCurrent } from "@/lib/use-current";
@@ -35,10 +35,10 @@ export default function DashboardPage() {
     return (
       <div className="py-10 text-center">
         <HeartHandshake className="mx-auto size-10 text-brand" aria-hidden />
-        <h1 className="mt-3 text-xl font-bold">Nog geen Mantel</h1>
-        <p className="mt-2 text-sm text-muted">Start een Mantel voor iemand die u helpt. Die persoon beslist zelf wat u mag zien.</p>
+        <h1 className="mt-3 text-xl font-bold">No Mantel yet</h1>
+        <p className="mt-2 text-sm text-muted">Start a Mantel for someone you help. They choose what you can see.</p>
         <ButtonLink href="/onboarding/kind" className="mt-5">
-          Start een Mantel
+          Start a Mantel
         </ButtonLink>
       </div>
     );
@@ -50,10 +50,10 @@ export default function DashboardPage() {
     return (
       <Card className="mt-2 space-y-3 text-center">
         <Clock className="mx-auto size-8 text-brand" aria-hidden />
-        <h1 className="text-lg font-bold">Bevestig eerst wie u bent</h1>
-        <p className="text-sm text-muted">{elderPerson.firstName} nodigde u uit. Bevestig met itsme om aan te sluiten.</p>
+        <h1 className="text-lg font-bold">First, confirm who you are</h1>
+        <p className="text-sm text-muted">{elderPerson.firstName} invited you. Confirm your identity with itsme to join.</p>
         <ButtonLink href="/gast" variant="itsme">
-          Verder met itsme
+          Continue with itsme
         </ButtonLink>
       </Card>
     );
@@ -72,22 +72,22 @@ export default function DashboardPage() {
 // ---------------------------------------------------------------------------
 
 function WaitingDashboard() {
-  const { elderPerson, s } = useCurrent();
+  const { elder, elderPerson, s } = useCurrent();
   return (
     <div>
       <Card className="space-y-3 bg-brand-mist ring-brand/20">
         <div className="flex items-center gap-2 text-sm font-semibold text-navy">
-          <Clock className="size-4" aria-hidden /> Wacht op goedkeuring van {elderPerson.firstName}
+          <Clock className="size-4" aria-hidden /> Waiting for {elderPerson.firstName} to accept
         </div>
         <p className="text-sm text-ink">
-          Uw uitnodiging is verstuurd{s.pendingInvite ? ` op ${shortDate(s.pendingInvite.at)}` : ""}. Tot {elderPerson.firstName} aanvaardt, wordt er niets over haar gedeeld.
+          Your invitation was sent{s.pendingInvite ? ` on ${shortDate(s.pendingInvite.at)}` : ""}. Until {elderPerson.firstName} accepts, nothing about {poss(elder)} finances is shared with you.
         </p>
         <div className="flex items-center gap-2 rounded-xl bg-white p-2.5 text-xs text-muted">
           <EyeOff className="size-4 shrink-0 text-navy" aria-hidden />
-          Gedeeld met u: niets. {elderPerson.firstName} kiest zelf wie wat mag zien.
+          Shared with you: nothing yet. {elderPerson.firstName} decides who sees what.
         </div>
         <ButtonLink href="/onboarding/kind" variant="secondary" size="sm">
-          Bekijk de uitnodiging
+          View the invitation
         </ButtonLink>
       </Card>
       <ChildSpace />
@@ -103,9 +103,9 @@ function AlertOnlyDashboard() {
 
   return (
     <div>
-      <p className="mt-1 px-1 text-sm text-muted">U ontvangt enkel meldingen over {elderPerson.firstName}, volgens de regels die zij zelf koos.</p>
+      <p className="mt-1 px-1 text-sm text-muted">You only get alerts about {elderPerson.firstName}, based on the rules {subj(elder)} chose.</p>
 
-      <SectionTitle>Meldingen</SectionTitle>
+      <SectionTitle>Alerts</SectionTitle>
       {fraudOpen ? (
         <Card className="space-y-3 ring-attention/30">
           <div className="flex items-start gap-3">
@@ -113,19 +113,19 @@ function AlertOnlyDashboard() {
               <BellRing className="size-5" aria-hidden />
             </span>
             <div>
-              <p className="text-xs font-medium text-muted">Volgens de regel van {elderPerson.firstName} · nu</p>
-              <h3 className="font-bold text-ink">Er gebeurde iets ongewoons op de rekening van {elderPerson.firstName}</h3>
+              <p className="text-xs font-medium text-muted">{elderPerson.firstName}&rsquo;s rule · just now</p>
+              <h3 className="font-bold text-ink">Something unusual happened on {elderPerson.firstName}&rsquo;s account</h3>
             </div>
           </div>
           <p className="text-sm text-ink">
-            KBC heeft het tegengehouden en Sarah is ook verwittigd. Kunt u even bij {elderPerson.firstName} langsgaan of haar bellen?
+            KBC put it on hold and Sarah has been alerted too. Could you pop round to {elderPerson.firstName} or give {elder === "maria" ? "her" : "him"} a call?
           </p>
           <div className="flex gap-2">
             <ButtonLink href="/app/fraude" size="sm">
-              <Phone className="size-4" aria-hidden /> Bel {elderPerson.firstName}
+              <Phone className="size-4" aria-hidden /> Call {elderPerson.firstName}
             </ButtonLink>
             <ButtonLink href="/app/fraude" size="sm" variant="secondary">
-              Meer info
+              Learn more
             </ButtonLink>
           </div>
         </Card>
@@ -133,38 +133,38 @@ function AlertOnlyDashboard() {
         <Card className="flex items-start gap-3 bg-calm-soft ring-calm/20">
           <CircleCheck className="mt-0.5 size-5 shrink-0 text-calm" aria-hidden />
           <div>
-            <h3 className="font-bold text-ink">Opgelost</h3>
-            <p className="text-sm text-ink">Sarah en KBC hebben de ongewone overschrijving samen gestopt. Bedankt om mee op te letten.</p>
+            <h3 className="font-bold text-ink">Transfer stopped</h3>
+            <p className="text-sm text-ink">Sarah and KBC stopped the unusual transfer. The money is still in {elderPerson.firstName}&rsquo;s account.</p>
           </div>
         </Card>
       ) : (
         <Card className="py-8 text-center">
           <ShieldCheck className="mx-auto size-9 text-calm" aria-hidden />
-          <p className="mt-2 font-semibold text-ink">Alles is rustig</p>
-          <p className="text-sm text-muted">Geen meldingen. We laten het u weten als het nodig is.</p>
+          <p className="mt-2 font-semibold text-ink">No alerts</p>
+          <p className="text-sm text-muted">We&rsquo;ll let you know if something needs your attention.</p>
         </Card>
       )}
 
-      <SectionTitle>Wat zie ik, en wat niet?</SectionTitle>
+      <SectionTitle>What can I see?</SectionTitle>
       <Card className="space-y-2 text-sm">
         <p className="flex gap-2">
-          <Check className="mt-0.5 size-4 shrink-0 text-calm" aria-hidden /> Meldingen volgens de regels van {elderPerson.firstName}
+          <Check className="mt-0.5 size-4 shrink-0 text-calm" aria-hidden /> Alerts based on {elderPerson.firstName}&rsquo;s rules
         </p>
         <p className="flex gap-2 text-muted">
-          <Lock className="mt-0.5 size-4 shrink-0" aria-hidden /> Geen saldo&rsquo;s, betalingen of vermogen
+          <Lock className="mt-0.5 size-4 shrink-0" aria-hidden /> No balances, payments or assets
         </p>
         <p className="flex gap-2 text-muted">
-          <Lock className="mt-0.5 size-4 shrink-0" aria-hidden /> Geen bedragen in de meldingen zelf
+          <Lock className="mt-0.5 size-4 shrink-0" aria-hidden /> No amounts in the alerts themselves
         </p>
       </Card>
 
-      <SectionTitle>Regels die u verwittigen</SectionTitle>
+      <SectionTitle>Rules that alert you</SectionTitle>
       <Card className="space-y-2">
         {s.rules[elder]
           .filter((r) => r.active && r.notify.includes(s.viewer))
           .map((r) => (
             <p key={r.id} className="text-sm">
-              <span className="font-semibold">{r.condition}</span>, verwittig {r.notify.map((p) => PEOPLE[p].firstName).join(" en ")}.
+              <span className="font-semibold">{r.condition}</span>, let {r.notify.map((p) => PEOPLE[p].firstName).join(" and ")} know.
             </p>
           ))}
       </Card>
@@ -188,19 +188,21 @@ function FullDashboard() {
   return (
     <div>
       <p className="mt-1 px-1 text-sm text-muted">
-        {fraudOpen ? "Er is één melding die uw aandacht vraagt." : `Alles is rustig bij ${name}. ${signals.length ? `${signals.length} nieuwe signalen.` : ""}`}
+        {fraudOpen
+          ? "There's 1 alert that needs your attention."
+          : `Nothing needs your attention.${signals.length ? ` ${signals.length} new ${signals.length === 1 ? "insight" : "insights"}.` : ""}`}
       </p>
 
       {fraudOpen && (
         <Link href="/app/fraude" className="mt-4 block animate-fade-in">
           <Card className="space-y-2 bg-attention-soft ring-attention/30">
             <div className="flex items-center gap-2 text-sm font-bold text-attention">
-              <BellRing className="size-4" aria-hidden /> Melding volgens {name}&rsquo;s regel
+              <BellRing className="size-4" aria-hidden /> Alert from {name}&rsquo;s rule
             </div>
-            <p className="font-bold text-ink">Ongewone overschrijving van {euro(FRAUD_TX.amount)} tegengehouden</p>
-            <p className="text-sm text-ink">Naar een onbekend rekeningnummer. Het geld staat nog op {name}&rsquo;s rekening. Bekijk samen wat er gebeurde.</p>
+            <p className="font-bold text-ink">KBC put a transfer of {euro(FRAUD_TX.amount)} on hold</p>
+            <p className="text-sm text-ink">It was going to an unknown account abroad. The money is still in {name}&rsquo;s account. Check with {name} whether she made it.</p>
             <span className="inline-flex items-center gap-1 text-sm font-semibold text-navy">
-              Bekijken <ArrowRight className="size-4" aria-hidden />
+              See what to do <ArrowRight className="size-4" aria-hidden />
             </span>
           </Card>
         </Link>
@@ -209,8 +211,8 @@ function FullDashboard() {
         <Card className="mt-4 flex items-start gap-3 bg-calm-soft ring-calm/20">
           <ShieldCheck className="mt-0.5 size-5 shrink-0 text-calm" aria-hidden />
           <div className="text-sm">
-            <p className="font-bold text-ink">Fraudepoging gestopt</p>
-            <p className="text-ink">{euro(FRAUD_TX.amount)} bleef op {name}&rsquo;s rekening, dankzij haar eigen regel.</p>
+            <p className="font-bold text-ink">Transfer stopped</p>
+            <p className="text-ink">The {euro(FRAUD_TX.amount)} is still in {name}&rsquo;s account. The transfer was flagged by the alert rule she set up.</p>
           </div>
         </Card>
       )}
@@ -221,16 +223,16 @@ function FullDashboard() {
           <Card key={a.id} className="mt-4 flex items-start gap-3 bg-brand-mist ring-brand/20">
             <Clock className="mt-0.5 size-5 shrink-0 text-navy" aria-hidden />
             <div className="text-sm">
-              <p className="font-bold text-ink">Wacht op goedkeuring van {name}</p>
+              <p className="font-bold text-ink">Waiting for {name}&rsquo;s approval</p>
               <p className="text-ink">
-                {euro(bill.amount)} aan {bill.payee}. Dat is boven haar limiet, dus {name} beslist.
+                {euro(bill.amount)} to {bill.payee}. That&rsquo;s above the limit, so {name} decides.
               </p>
             </div>
           </Card>
         );
       })}
 
-      <SectionTitle>Zorgsituatie</SectionTitle>
+      <SectionTitle>Care situation</SectionTitle>
       <Card className="space-y-3">
         <div className="flex flex-wrap gap-1.5">
           <Badge tone="brand">{profile.careLevel}</Badge>
@@ -241,18 +243,18 @@ function FullDashboard() {
         <p className="text-sm text-ink">
           <span className="font-semibold">{profile.living}.</span> {profile.careSummary}
         </p>
-        <p className="text-xs text-muted">Huisarts: {profile.gp}</p>
+        <p className="text-xs text-muted">GP: {profile.gp}</p>
       </Card>
 
       <div className="mt-4 grid grid-cols-4 gap-2">
-        <QuickAction href="/app/betalen" icon={CreditCard} label="Betalen" locked={!canAct} />
-        <QuickAction href="/app/diensten" icon={Store} label="Diensten" />
-        <QuickAction href="/app/logboek" icon={ScrollText} label="Logboek" />
-        <QuickAction href="/app/kring" icon={Users} label="Kring" />
+        <QuickAction href="/app/betalen" icon={CreditCard} label="Pay" locked={!canAct} />
+        <QuickAction href="/app/diensten" icon={Store} label="Services" />
+        <QuickAction href="/app/logboek" icon={ScrollText} label="Activity" />
+        <QuickAction href="/app/kring" icon={Users} label="Circle" />
       </div>
 
       <SectionTitle action={<span className="text-xs font-semibold text-muted">{tasks.filter((t) => s.tasksDone.includes(t.id)).length}/{tasks.length}</span>}>
-        Open taken
+        To do
       </SectionTitle>
       <Card className="divide-y divide-line p-1.5">
         {tasks.map((t) => {
@@ -273,7 +275,7 @@ function FullDashboard() {
 
       {signals.length > 0 && (
         <>
-          <SectionTitle action={<Link href="/app/signalen" className="text-xs font-semibold text-brand">Alle signalen</Link>}>Recente signalen</SectionTitle>
+          <SectionTitle action={<Link href="/app/signalen" className="text-xs font-semibold text-brand">See all</Link>}>What Kate noticed</SectionTitle>
           <Card className="space-y-1 p-2">
             {signals.slice(0, 3).map((sig) => (
               <SignalCard key={sig.id} signal={sig} compact />
@@ -282,24 +284,24 @@ function FullDashboard() {
         </>
       )}
 
-      <SectionTitle>Komende betalingen</SectionTitle>
+      <SectionTitle>Upcoming bills</SectionTitle>
       <Card className="divide-y divide-line p-1.5">
-        {openBills.length === 0 && <p className="p-3 text-sm text-muted">Geen openstaande facturen.</p>}
+        {openBills.length === 0 && <p className="p-3 text-sm text-muted">No bills to pay.</p>}
         {openBills.map((b) => (
           <div key={b.id} className="flex items-center gap-3 p-2.5">
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-semibold text-ink">{b.payee}</span>
               <span className="block text-xs text-muted">
-                {b.description} · vervalt {shortDate(b.due)}
+                {b.description} · due {shortDate(b.due)}
               </span>
             </span>
             <span className="text-right">
               <span className="block text-sm font-bold tabular-nums text-ink">{euro(b.amount)}</span>
               {b.status === "awaiting-approval" ? (
-                <span className="text-[11px] font-semibold text-attention">wacht op {name}</span>
+                <span className="text-[11px] font-semibold text-attention">waiting for {name}</span>
               ) : canAct ? (
                 <Link href={`/app/betalen`} className="text-[11px] font-semibold text-brand">
-                  Betalen
+                  Pay
                 </Link>
               ) : null}
             </span>
@@ -307,12 +309,12 @@ function FullDashboard() {
         ))}
         {!canAct && actor && (
           <p className="flex items-center gap-2 p-2.5 text-xs text-muted">
-            <Lock className="size-3.5" aria-hidden /> {actor.personId === viewer ? "" : `${PEOPLE[actor.personId].firstName} regelt de betalingen (Handelen). `}Met Inzage kan u kijken, niet betalen.
+            <Lock className="size-3.5" aria-hidden /> {actor.personId === viewer ? "" : `${PEOPLE[actor.personId].firstName} pays the bills (Pay role). `}With View, you can see the bills but not pay them.
           </p>
         )}
       </Card>
 
-      <SectionTitle>Actieve diensten</SectionTitle>
+      <SectionTitle>Active services</SectionTitle>
       <Card className="divide-y divide-line p-1.5">
         {RECURRING[elder].map((r) => (
           <div key={r.name} className="flex items-center gap-3 p-2.5">
@@ -320,7 +322,7 @@ function FullDashboard() {
               <span className="block text-sm font-semibold text-ink">{r.name}</span>
               <span className="block text-xs text-muted">{r.detail}</span>
             </span>
-            <Badge tone="calm">actief</Badge>
+            <Badge tone="calm">active</Badge>
           </div>
         ))}
         {requested.map((r) => {
@@ -331,10 +333,10 @@ function FullDashboard() {
                 <span className="block text-sm font-semibold text-ink">{svc?.partner}</span>
                 <span className="block text-xs text-muted">
                   {svc?.name}
-                  {r.withLoan ? " · met KBC Renovatielening" : ""}
+                  {r.withLoan ? " · with a KBC Renovation Loan" : ""}
                 </span>
               </span>
-              <Badge tone="brand">aangevraagd</Badge>
+              <Badge tone="brand">requested</Badge>
             </div>
           );
         })}
@@ -342,7 +344,7 @@ function FullDashboard() {
 
       <p className="mt-6 flex items-start gap-2 px-1 text-xs text-muted">
         <ListChecks className="mt-0.5 size-4 shrink-0" aria-hidden />
-        {name} houdt de sleutel. Alles wat u doet staat in het logboek, en {fullName(elder)} krijgt er een melding van.
+        Everything you do is recorded in the activity log, and {name} is notified.
       </p>
     </div>
   );

@@ -54,7 +54,7 @@ function Dots({ count, index }: { count: number; index: number }) {
 
 /**
  * When the jury follows a tip and already lands on the screen of the next step,
- * move the guide along by itself (after a short "Gelukt" moment).
+ * move the guide along by itself (after a short "Done" moment).
  */
 export function TourAutoAdvance() {
   const s = useDemo();
@@ -87,16 +87,16 @@ export function TourBar() {
     return (
       <div className="shrink-0 border-t border-line bg-white px-4 pb-[max(env(safe-area-inset-bottom),12px)] pt-3 lg:hidden">
         <p className="flex items-center gap-2 text-sm font-bold text-calm">
-          <Check className="size-4" aria-hidden /> Pad {t.tour.id} afgerond: {t.tour.title}
+          <Check className="size-4" aria-hidden /> Path {t.tour.id} done: {t.tour.title}
         </p>
         <div className="mt-2.5 flex gap-2">
           {t.nextTour && (
             <Button size="sm" className="flex-1" onClick={t.startNext}>
-              Pad {t.nextTour.id}: {t.nextTour.title}
+              Path {t.nextTour.id}: {t.nextTour.title}
             </Button>
           )}
           <Button size="sm" variant="secondary" className={t.nextTour ? "" : "flex-1"} onClick={t.stop}>
-            Alle paden
+            All paths
           </Button>
         </div>
       </div>
@@ -116,31 +116,36 @@ export function TourBar() {
           </span>
           {t.step!.title}
         </p>
-        <button type="button" onClick={() => setCollapsed((c) => !c)} className="rounded-full p-1 text-muted hover:bg-canvas" aria-label={collapsed ? "Uitklappen" : "Inklappen"}>
+        <button type="button" onClick={() => setCollapsed((c) => !c)} className="rounded-full p-1 text-muted hover:bg-canvas" aria-label={collapsed ? "Expand" : "Collapse"}>
           {collapsed ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
         </button>
-        <button type="button" onClick={t.stop} className="-mr-1 rounded-full p-1 text-muted hover:bg-canvas" aria-label="Pad stoppen">
+        <button type="button" onClick={t.stop} className="-mr-1 rounded-full p-1 text-muted hover:bg-canvas" aria-label="Stop path">
           <X className="size-4" />
         </button>
       </div>
       {!collapsed &&
         (t.done && !last ? (
           <p className="mt-1.5 text-[13px] leading-snug text-ink">
-            <span className="font-semibold text-calm">Goed zo.</span> Volgende stap: “{t.tour.steps[t.index + 1].title}”.
+            <span className="font-semibold text-calm">Well done.</span> Next step: “{t.tour.steps[t.index + 1].title}”.
           </p>
         ) : (
-          <p className="mt-1.5 text-[13px] leading-snug text-ink">{t.step!.hint}</p>
+          <>
+            <p className="mt-1.5 text-[13px] leading-snug text-ink">{t.step!.hint}</p>
+            <p className="mt-1 text-xs leading-snug text-muted">
+              <span className="font-semibold text-brand">Why it matters:</span> {t.step!.why}
+            </p>
+          </>
         ))}
       <div className="mt-2 flex items-center justify-between gap-3">
         <Dots count={t.tour.steps.length} index={t.index} />
         <div className="flex items-center gap-2">
           {t.done && (
             <span className="flex items-center gap-1 text-xs font-bold text-calm">
-              <Check className="size-3.5" aria-hidden /> Gelukt
+              <Check className="size-3.5" aria-hidden /> Done
             </span>
           )}
           <Button size="sm" variant={t.done ? "calm" : t.task ? "soft" : "primary"} onClick={t.next} className={t.done ? "animate-pop" : ""}>
-            {last ? "Afronden" : t.done || !t.task ? "Volgende" : "Sla over"} <ArrowRight className="size-3.5" aria-hidden />
+            {last ? "Finish" : t.done || !t.task ? "Next" : "Skip"} <ArrowRight className="size-3.5" aria-hidden />
           </Button>
         </div>
       </div>
@@ -156,8 +161,8 @@ export function TourPanel() {
   return (
     <aside className="hidden w-[320px] shrink-0 rounded-[28px] bg-white p-6 shadow-[0_20px_50px_-30px_rgba(10,43,87,0.45)] ring-1 ring-line lg:block">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-brand">Pad {t.tour.id} van 3</p>
-        <button type="button" onClick={t.stop} className="rounded-full p-1 text-muted hover:bg-canvas" aria-label="Pad stoppen">
+        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-brand">Path {t.tour.id} of 3</p>
+        <button type="button" onClick={t.stop} className="rounded-full p-1 text-muted hover:bg-canvas" aria-label="Stop path">
           <X className="size-4" />
         </button>
       </div>
@@ -185,7 +190,15 @@ export function TourPanel() {
                 </span>
                 {s.title}
               </p>
-              {current && <p className="mt-2 pl-[34px] text-sm leading-snug text-ink">{s.hint}</p>}
+              {current && (
+                <div className="mt-2 space-y-2 pl-[34px]">
+                  <p className="text-sm leading-snug text-ink">{s.hint}</p>
+                  <p className="rounded-xl bg-white/80 px-2.5 py-2 text-xs leading-snug text-muted ring-1 ring-brand/15">
+                    <span className="block font-semibold uppercase tracking-[0.08em] text-brand">Why it matters</span>
+                    {s.why}
+                  </p>
+                </div>
+              )}
             </li>
           );
         })}
@@ -194,28 +207,28 @@ export function TourPanel() {
       {t.finished ? (
         <div className="mt-5 space-y-2">
           <p className="flex items-center gap-2 text-sm font-bold text-calm">
-            <Check className="size-4" aria-hidden /> Pad afgerond
+            <Check className="size-4" aria-hidden /> Path complete
           </p>
           {t.nextTour && (
             <Button full onClick={t.startNext}>
-              Pad {t.nextTour.id}: {t.nextTour.title}
+              Path {t.nextTour.id}: {t.nextTour.title}
             </Button>
           )}
           <Button full variant="secondary" onClick={t.stop}>
-            Alle paden
+            All paths
           </Button>
         </div>
       ) : (
         <div className="mt-5 flex items-center justify-between gap-3">
           {t.done ? (
             <span className="flex items-center gap-1 text-sm font-bold text-calm">
-              <Check className="size-4" aria-hidden /> Gelukt
+              <Check className="size-4" aria-hidden /> Done
             </span>
           ) : (
-            <span className="text-xs text-muted">{t.task ? "Volg de tip in de app" : "Kijk even rond"}</span>
+            <span className="text-xs text-muted">{t.task ? "Follow the tip in the app" : "Have a look around"}</span>
           )}
           <Button variant={t.done ? "calm" : t.task ? "soft" : "primary"} onClick={t.next}>
-            {t.index === t.tour.steps.length - 1 ? "Afronden" : t.done || !t.task ? "Volgende" : "Sla over"} <ArrowRight className="size-4" aria-hidden />
+            {t.index === t.tour.steps.length - 1 ? "Finish" : t.done || !t.task ? "Next" : "Skip"} <ArrowRight className="size-4" aria-hidden />
           </Button>
         </div>
       )}

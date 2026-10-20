@@ -8,6 +8,8 @@ export type TourStep = {
   title: string;
   /** What the jury should tap on this screen */
   hint: string;
+  /** The point this step proves, in one line */
+  why: string;
   href: string;
   /** Puts the demo in the state this step needs, so skipping ahead always works */
   setup?: () => void;
@@ -30,28 +32,31 @@ function ensureFraud() {
 export const TOURS: Tour[] = [
   {
     id: 1,
-    title: "Maria houdt de sleutel",
-    subtitle: "KBC merkt iets op en vraagt het aan Maria zelf. Zij kiest wie haar helpt, en wat die persoon mag.",
+    title: "Maria chooses who helps",
+    subtitle: "KBC notices changes in Maria's payments and asks her if she'd like help. She chooses who can help, and what they can do.",
     people: ["maria", "sarah", "tom"],
     prepare: () => actions.prepareStep(1),
     steps: [
       {
-        title: "Een signaal van KBC",
-        hint: "KBC ziet veranderingen op Maria's rekening en vraagt het aan Maria, nooit aan haar kinderen. Lees het bericht en tik op “Waarom zie ik dit?”.",
+        title: "KBC asks Maria first",
+        hint: "KBC sees changes in Maria's payments. Read the message, tap “Why am I seeing this?” and continue until you reach “Choose someone”.",
+        why: "KBC asks Maria herself. Her children only see something once she agrees.",
         href: "/onboarding/signaal",
         setup: () => actions.setViewer("maria", "maria"),
         done: (_, path) => path === "/onboarding/ouder",
       },
       {
-        title: "Maria kiest wie haar helpt",
-        hint: "Kies Sarah, Tom en Ann. Sarah mag betalen, Tom mag kijken, Ann krijgt enkel een bericht. Laat de fraude-regel aan en bevestig.",
+        title: "Choosing roles",
+        hint: "Tap Sarah, Tom and Ann, then Continue. Sarah gets “Pay bills for me” (keep €500), Tom “See my accounts”, Ann “Just get an alert”. Leave the fraud rule on and tap “Yes, that's right”.",
+        why: "Maria sets this up herself, in large text, in about a minute.",
         href: "/onboarding/ouder",
         setup: () => actions.setViewer("maria", "maria"),
         done: (s) => s.mantel.maria === "active",
       },
       {
-        title: "Tom sluit aan als gast",
-        hint: "Tom is geen KBC-klant. Tik op de link in de sms, bevestig met itsme en kijk mee in Maria's Mantel.",
+        title: "Tom joins as a guest",
+        hint: "Tom isn't a KBC customer. Tap the link in his text message, continue with itsme and have a look at Maria's Mantel.",
+        why: "No KBC account needed. Family members who bank elsewhere can still help, and get to know KBC.",
         href: "/gast",
         setup: () => {
           actions.ensureMariaMantel();
@@ -60,62 +65,69 @@ export const TOURS: Tour[] = [
         done: (s) => s.circles.maria.some((m) => m.personId === "tom" && m.status === "active"),
       },
       {
-        title: "Maria kan altijd stoppen",
-        hint: "In grote letters ziet Maria wie wat mag. Tik bij Tom op “Stoppen”: zijn toegang is meteen weg. Daarna kan u het ongedaan maken.",
+        title: "Maria can stop any time",
+        hint: "Maria sees who can do what, in large text. Tap “Remove access” under Tom: his access is gone straight away. You can undo it afterwards.",
+        why: "Maria can change or stop access at any time, not just when she signs up.",
         href: "/maria/toestemming",
         setup: () => {
           actions.ensureMariaMantel();
           actions.setViewer("maria", "maria");
         },
-        done: (s) => s.audit.maria.some((e) => e.text.includes("stopte de toegang")),
+        done: (s) => s.audit.maria.some((e) => e.text.includes("removed")),
       },
     ],
   },
   {
     id: 2,
-    title: "Sarah zorgt mee",
-    subtitle: "Sarah zorgt voor haar mama én haar schoonvader. Ze ziet het vermogen, vraagt hulp aan en betaalt binnen Maria's limiet.",
+    title: "Sarah helps two parents",
+    subtitle: "Sarah helps her mum and her father-in-law. She sees what's going on, arranges help and pays bills within Maria's limit.",
     people: ["sarah", "maria", "jozef"],
     prepare: () => actions.prepareStep(4),
     steps: [
       {
-        title: "Twee ouders, twee rollen",
-        hint: "Tik bovenaan op Maria en wissel naar Jozef. Bij Jozef heeft Sarah enkel Inzage: kijken, niet betalen.",
+        title: "Two parents, two roles",
+        hint: "Tap Maria's name at the top and switch to Jozef. For Jozef, Sarah only has View: she can look, but not pay.",
+        why: "Sarah can have a different role for each parent, because each parent sets it.",
         href: "/app",
         setup: () => actions.setViewer("sarah", "maria"),
         done: (s) => s.activeElder === "jozef",
       },
       {
-        title: "Het vermogen van Maria",
-        hint: "Wissel terug naar Maria en open Vermogen onderaan: woning, rekeningen, verzekeringen en de zorgkosten per maand.",
+        title: "Maria's finances",
+        hint: "Switch back to Maria and tap Finances at the bottom: her house, accounts, insurance and what care costs her each month.",
+        why: "Maria's accounts, home, insurance and care costs in one overview.",
         href: "/app",
         setup: () => actions.setViewer("sarah", "jozef"),
         done: (s, path) => s.activeElder === "maria" && path === "/app/vermogen",
       },
       {
-        title: "Hulp aanvragen",
-        hint: "KBC beveelt diensten aan op basis van Maria's situatie. Vraag Wit-Gele Kruis aan, en een traplift-offerte met KBC Renovatielening.",
+        title: "Arrange help",
+        hint: "Services are suggested based on Maria's situation. Request Wit-Gele Kruis, then a stair lift quote with a KBC Renovation Loan.",
+        why: "Each request goes to a partner with Maria's consent. The stair lift can be financed with a KBC loan.",
         href: "/app/diensten",
         setup: () => actions.setViewer("sarah", "maria"),
         done: (s) => ["wgk", "traplift"].every((id) => s.requested.maria.some((r) => r.serviceId === id)),
       },
       {
-        title: "Betalen namens Maria",
-        hint: "Betaal de factuur van Wit-Gele Kruis. Dat is binnen Maria's limiet van €500, en Maria krijgt er een melding van.",
+        title: "Pay for Maria",
+        hint: "Tap the Wit-Gele Kruis bill of €184.20 and pay it. It's within Maria's €500 limit, and she gets a notification.",
+        why: "Sarah signs as herself, not as Maria. Every payment is logged with her name.",
         href: "/app/betalen",
         setup: () => actions.setViewer("sarah", "maria"),
         done: (s) => s.bills.maria.some((b) => b.id === "wgk-okt" && b.status === "paid"),
       },
       {
-        title: "Boven de limiet",
-        hint: "Tik op “Nog een factuur betalen” en kies de verwarmingsketel van €742. Dat is meer dan Maria toeliet: Sarah vraagt eerst haar goedkeuring.",
+        title: "Above the limit",
+        hint: "Now pay the boiler repair of €742 (tap “Pay another bill” first). That's more than Maria allowed, so Sarah has to ask her first.",
+        why: "Small bills can be paid straight away. Larger amounts need Maria's approval.",
         href: "/app/betalen",
         setup: () => actions.setViewer("sarah", "maria"),
         done: (s) => s.approvals.some((a) => a.billId === "ketel"),
       },
       {
-        title: "Maria beslist",
-        hint: "Maria krijgt de vraag in haar eigen app, in grote letters. Keur de betaling goed.",
+        title: "Maria decides",
+        hint: "Maria gets the question in her own app, in large text. Approve the payment.",
+        why: "Maria approves or declines in her own app. Sarah sees her answer straight away.",
         href: "/maria/goedkeuren",
         setup: () => {
           const s = getDemo();
@@ -128,14 +140,15 @@ export const TOURS: Tour[] = [
   },
   {
     id: 3,
-    title: "Samen veilig",
-    subtitle: "Iemand probeert geld van Maria's rekening te halen. Haar eigen regel verwittigt de juiste mensen. Daarna: wat levert het op?",
+    title: "Stopping a fraud attempt",
+    subtitle: "Someone tries to take money from Maria's account. The rule she set alerts Sarah and Ann. Afterwards, see what KBC Mantel brings KBC.",
     people: ["sarah", "ann", "maria"],
     prepare: () => actions.prepareStep(4),
     steps: [
       {
-        title: "Een melding komt binnen",
-        hint: "Er komt zo een melding binnen op Sarah's gsm, volgens de regel die Maria zelf koos. Tik op de melding.",
+        title: "An alert comes in",
+        hint: "In a moment, an alert appears on Sarah's phone, because of the rule Maria chose. Tap the alert.",
+        why: "KBC already stops suspicious transfers. With KBC Mantel, the people Maria chose are alerted too.",
         href: "/app",
         setup: () => {
           actions.setViewer("sarah", "maria");
@@ -143,8 +156,8 @@ export const TOURS: Tour[] = [
             if (getDemo().fraud !== "none") return;
             actions.triggerFraud();
             actions.push({
-              title: "Melding volgens Maria's regel",
-              body: `Ongewone overschrijving van ${euro0(FRAUD_TX.amount)} tegengehouden. Bekijk wat er gebeurde.`,
+              title: "Alert from Maria's rule",
+              body: `Unusual transfer of ${euro0(FRAUD_TX.amount)} put on hold. See what happened.`,
               href: "/app/fraude",
               tone: "alert",
               for: "sarah",
@@ -154,8 +167,9 @@ export const TOURS: Tour[] = [
         done: (_, path) => path === "/app/fraude",
       },
       {
-        title: "Waarom KBC dit tegenhield",
-        hint: "Bekijk waarom de overschrijving ongewoon is, en wie verwittigd werd. Tom niet: zo koos Maria het.",
+        title: "Why KBC stopped it",
+        hint: "See why the transfer looks unusual, and who was alerted. Tom wasn't: that's how Maria set it up.",
+        why: "Each alert says in plain language why KBC stopped the transfer.",
         href: "/app/fraude",
         setup: () => {
           ensureFraud();
@@ -163,8 +177,9 @@ export const TOURS: Tour[] = [
         },
       },
       {
-        title: "Zo ziet Ann het",
-        hint: "Ann, de buurvrouw, heeft enkel de rol Meldingen. Ze krijgt een seintje om even langs te gaan, maar ziet geen bedragen of rekeningen.",
+        title: "How Ann sees it",
+        hint: "Ann, the neighbour, only has the Alerts role. She's asked to pop round, but sees no amounts or accounts.",
+        why: "Ann can help Maria without seeing her money.",
         href: "/app",
         setup: () => {
           ensureFraud();
@@ -172,8 +187,9 @@ export const TOURS: Tour[] = [
         },
       },
       {
-        title: "Samen blokkeren",
-        hint: "Terug bij Sarah: tik op “Bel mama” en blokkeer de overschrijving daarna samen met KBC.",
+        title: "Blocking the transfer",
+        hint: "Back to Sarah: tap “Call Mum”, then block the transfer with KBC.",
+        why: "Sarah checks with Maria, KBC blocks the transfer, and the money stays in Maria's account.",
         href: "/app/fraude",
         setup: () => {
           ensureFraud();
@@ -182,8 +198,9 @@ export const TOURS: Tour[] = [
         done: (s) => s.fraud === "resolved",
       },
       {
-        title: "Triple win",
-        hint: "Wat levert KBC Mantel op voor de familie, voor KBC en voor de partners? Bekijk ook het tabblad Schaal.",
+        title: "What it brings KBC",
+        hint: "What does KBC Mantel bring the family, KBC and its partners? Have a look at the Scale tab too.",
+        why: "More loans and insurance, new customers through guests like Tom, and less fraud.",
         href: "/kbc",
       },
     ],

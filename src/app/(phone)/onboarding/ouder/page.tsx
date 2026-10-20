@@ -5,23 +5,26 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Bell, Check, Eye, Fingerprint, HandCoins, HeartHandshake, KeyRound, UserPlus } from "lucide-react";
 import { PEOPLE, firstName } from "@/lib/data";
 import { euro0 } from "@/lib/format";
-import { actions, useDemo } from "@/lib/store";
+import { FRAUD_RULE, actions, useDemo } from "@/lib/store";
 import type { PersonId, RoleId, Rule } from "@/lib/types";
 import { Avatar, Button, RoleBadge, Spinner, SuccessMark, Toggle, cx, toast, wait } from "@/components/ui";
 
 const CANDIDATES: { id: PersonId; relation: string }[] = [
-  { id: "sarah", relation: "Dochter" },
-  { id: "tom", relation: "Zoon" },
-  { id: "ann", relation: "Buurvrouw" },
+  { id: "sarah", relation: "Daughter" },
+  { id: "tom", relation: "Son" },
+  { id: "ann", relation: "Neighbour" },
 ];
 
 const ROLE_OPTIONS: { role: RoleId; title: string; text: (n: string) => string; icon: typeof Bell }[] = [
-  { role: "meldingen", title: "Alleen een bericht krijgen", text: (n) => `${n} krijgt een bericht als er iets ongewoons is. ${n} ziet geen geld.`, icon: Bell },
-  { role: "inzage", title: "Mijn rekeningen bekijken", text: (n) => `${n} mag meekijken, maar niet betalen.`, icon: Eye },
-  { role: "handelen", title: "Rekeningen betalen voor mij", text: (n) => `${n} mag betalen tot een bedrag dat u kiest.`, icon: HandCoins },
+  { role: "meldingen", title: "Just get an alert", text: (n) => `${n} gets an alert if something unusual happens, but can't see any money.`, icon: Bell },
+  { role: "inzage", title: "See my accounts", text: (n) => `${n} can see your accounts, but can't pay.`, icon: Eye },
+  { role: "handelen", title: "Pay bills for me", text: (n) => `${n} can pay bills, up to an amount you choose.`, icon: HandCoins },
 ];
 
 const LIMITS = [250, 500, 1000];
+const UNPAID_RULE = "If a bill is still unpaid after 2 months";
+const HOSPITAL_RULE = "If I'm admitted to hospital";
+const names = (ids: PersonId[]) => ids.map(firstName).join(", ").replace(/, ([^,]*)$/, " and $1");
 
 type Screen =
   | { kind: "intro" }
@@ -72,9 +75,9 @@ function ParentOnboarding() {
 
   const buildRules = (): Omit<Rule, "id">[] => {
     const out: Omit<Rule, "id">[] = [];
-    if (ruleOn.fraud) out.push({ condition: "Als er iets verdachts gebeurt op mijn rekening", notify: fraudNotify, active: true });
-    if (ruleOn.unpaid) out.push({ condition: "Als een factuur 2 maanden niet betaald is", notify: unpaidNotify, active: true });
-    if (ruleOn.hospital) out.push({ condition: "Als ik in het ziekenhuis word opgenomen", notify: people.map((p) => p.id), active: true });
+    if (ruleOn.fraud) out.push({ condition: FRAUD_RULE, notify: fraudNotify, active: true });
+    if (ruleOn.unpaid) out.push({ condition: UNPAID_RULE, notify: unpaidNotify, active: true });
+    if (ruleOn.hospital) out.push({ condition: HOSPITAL_RULE, notify: people.map((p) => p.id), active: true });
     return out;
   };
 
@@ -91,7 +94,7 @@ function ParentOnboarding() {
       <header className="flex h-16 items-center justify-between px-5 pt-2">
         {showBack ? (
           <button type="button" onClick={back} className="inline-flex items-center gap-2 py-2 pr-3 text-xl font-semibold text-navy">
-            <ArrowLeft className="size-7" aria-hidden /> Terug
+            <ArrowLeft className="size-7" aria-hidden /> Back
           </button>
         ) : (
           <span className="flex items-center gap-2.5 text-navy">
@@ -109,21 +112,21 @@ function ParentOnboarding() {
             {invitedBy ? (
               <>
                 <Avatar id={invitedBy} size="xl" />
-                <h1 className="mt-5 text-3xl font-bold leading-tight">{firstName(invitedBy)} wil u graag helpen</h1>
+                <h1 className="mt-5 text-3xl font-bold leading-tight">{firstName(invitedBy)} would like to help you</h1>
                 <p className="mt-4 text-ink">
-                  {firstName(invitedBy)} startte KBC Mantel en nodigde u uit. Er werd nog niets over u gedeeld. U beslist zelf wie wat mag.
+                  {firstName(invitedBy)} started KBC Mantel and invited you. Nothing about you has been shared yet. You choose who may do what.
                 </p>
               </>
             ) : (
               <>
                 <HeartHandshake className="size-14 text-brand" aria-hidden />
-                <h1 className="mt-5 text-3xl font-bold leading-tight">Wie zou u vertrouwen om u te helpen als dat ooit nodig is?</h1>
-                <p className="mt-4 text-ink">U kiest zelf wie, en wat die persoon mag. U kan het altijd veranderen.</p>
+                <h1 className="mt-5 text-3xl font-bold leading-tight">Who would you trust to help you, if you ever need it?</h1>
+                <p className="mt-4 text-ink">You choose who, and what they may do. You can change it at any time.</p>
               </>
             )}
             <div className="mt-auto pt-8">
               <Button size="xl" full onClick={() => go({ kind: "people" })}>
-                Iemand kiezen
+                Choose someone
               </Button>
             </div>
           </>
@@ -131,8 +134,8 @@ function ParentOnboarding() {
 
         {screen.kind === "people" && (
           <>
-            <h1 className="text-3xl font-bold">Wie kiest u?</h1>
-            <p className="mt-2 text-muted">Tik op elke persoon die u vertrouwt.</p>
+            <h1 className="text-3xl font-bold">Who would you like to choose?</h1>
+            <p className="mt-2 text-muted">Tap each person you trust.</p>
             <div className="mt-6 space-y-3">
               {CANDIDATES.map((c) => {
                 const on = selected.includes(c.id);
@@ -157,18 +160,18 @@ function ParentOnboarding() {
               })}
               <button
                 type="button"
-                onClick={() => toast("In de demo kiest u uit Sarah, Tom en Ann.")}
+                onClick={() => toast("In this demo, you choose from Sarah, Tom and Ann.")}
                 className="flex w-full items-center gap-4 rounded-3xl p-4 text-left text-xl font-semibold text-navy border-2 border-dashed border-line"
               >
                 <span className="flex size-16 items-center justify-center rounded-full bg-canvas">
                   <UserPlus className="size-7" aria-hidden />
                 </span>
-                Iemand anders
+                Someone else
               </button>
             </div>
             <div className="mt-auto pt-8">
               <Button size="xl" full disabled={selected.length === 0} onClick={() => go({ kind: "role", i: 0 })}>
-                Verder
+                Continue
               </Button>
             </div>
           </>
@@ -190,7 +193,7 @@ function ParentOnboarding() {
         {screen.kind === "limit" && (
           <>
             <h1 className="text-3xl font-bold leading-tight">
-              Tot hoeveel mag {firstName(people[screen.i].id)} betalen zonder het u te vragen?
+              How much may {firstName(people[screen.i].id)} pay without asking you?
             </h1>
             <div className="mt-6 space-y-3">
               {LIMITS.map((l) => (
@@ -205,38 +208,38 @@ function ParentOnboarding() {
                   className={cx("flex w-full items-center justify-between rounded-3xl p-5 text-left ring-2 ring-inset", limit === l ? "bg-brand-mist ring-brand" : "ring-line")}
                 >
                   <span className="text-3xl font-bold text-ink">{euro0(l)}</span>
-                  {l === 500 && <span className="text-lg font-semibold text-muted">meest gekozen</span>}
+                  {l === 500 && <span className="text-lg font-semibold text-muted">Most popular</span>}
                 </button>
               ))}
             </div>
-            <p className="mt-6 text-ink">Meer dan dat? Dan vragen we het eerst aan u. Van elke betaling krijgt u een bericht.</p>
+            <p className="mt-6 text-ink">Anything more, we ask you first. You get an alert for every payment.</p>
           </>
         )}
 
         {screen.kind === "rules" && (
           <>
-            <h1 className="text-3xl font-bold leading-tight">Wanneer moeten we iemand verwittigen?</h1>
+            <h1 className="text-3xl font-bold leading-tight">When should we let someone know?</h1>
             <div className="mt-6 space-y-3">
               <RuleRow
                 on={ruleOn.fraud}
                 onChange={(v) => setRuleOn((r) => ({ ...r, fraud: v }))}
-                text={`Als er iets verdachts gebeurt op mijn rekening, verwittig ${fraudNotify.map(firstName).join(" en ")}.`}
-                hint="Aangeraden"
+                text={`${FRAUD_RULE}, let ${names(fraudNotify)} know.`}
+                hint="Recommended"
               />
               <RuleRow
                 on={ruleOn.unpaid}
                 onChange={(v) => setRuleOn((r) => ({ ...r, unpaid: v }))}
-                text={`Als een factuur 2 maanden niet betaald is, verwittig ${unpaidNotify.map(firstName).join(" en ")}.`}
+                text={`${UNPAID_RULE}, let ${names(unpaidNotify)} know.`}
               />
               <RuleRow
                 on={ruleOn.hospital}
                 onChange={(v) => setRuleOn((r) => ({ ...r, hospital: v }))}
-                text={`Als ik in het ziekenhuis word opgenomen, verwittig ${people.map((p) => firstName(p.id)).join(" en ")}.`}
+                text={`${HOSPITAL_RULE}, let ${names(people.map((p) => p.id))} know.`}
               />
             </div>
             <div className="mt-auto pt-8">
               <Button size="xl" full onClick={() => go({ kind: "summary" })}>
-                Verder
+                Continue
               </Button>
             </div>
           </>
@@ -244,7 +247,7 @@ function ParentOnboarding() {
 
         {screen.kind === "summary" && (
           <>
-            <h1 className="text-3xl font-bold">Klopt dit?</h1>
+            <h1 className="text-3xl font-bold">Is this right?</h1>
             <div className="mt-6 space-y-3">
               {people.map((p) => {
                 const role = roles[p.id] ?? "meldingen";
@@ -256,19 +259,19 @@ function ParentOnboarding() {
                       <RoleBadge role={role} size="lg" />
                     </div>
                     <p className="mt-3 text-ink">
-                      {role === "handelen" ? `Mag betalen tot ${euro0(limit)}.` : ROLE_OPTIONS.find((o) => o.role === role)!.text(firstName(p.id))}
+                      {role === "handelen" ? `Can pay bills up to ${euro0(limit)}.` : ROLE_OPTIONS.find((o) => o.role === role)!.text(firstName(p.id))}
                     </p>
                   </div>
                 );
               })}
               {buildRules().map((r) => (
                 <p key={r.condition} className="rounded-3xl bg-brand-mist p-5 text-ink">
-                  <strong>{r.condition}</strong>, verwittig {r.notify.map(firstName).join(" en ")}.
+                  <strong>{r.condition}</strong>, let {names(r.notify)} know.
                 </p>
               ))}
             </div>
             <p className="mt-6 flex items-start gap-3 text-ink">
-              <KeyRound className="mt-1 size-6 shrink-0 text-navy" aria-hidden /> U kan dit altijd veranderen of stoppen, met één tik.
+              <KeyRound className="mt-1 size-6 shrink-0 text-navy" aria-hidden /> You can change or stop this at any time.
             </p>
             <div className="mt-auto pt-8">
               <Button
@@ -286,7 +289,7 @@ function ParentOnboarding() {
                   setScreen({ kind: "done" });
                 }}
               >
-                Ja, zo is het goed
+                Yes, that’s right
               </Button>
             </div>
           </>
@@ -298,8 +301,8 @@ function ParentOnboarding() {
               <Fingerprint className="size-14" aria-hidden />
               <Spinner className="absolute -right-1 -top-1 size-8 text-brand" />
             </span>
-            <p className="mt-6 text-2xl font-bold">Bevestig met uw vinger</p>
-            <p className="mt-2 text-muted">Zoals u gewoon bent in de KBC-app.</p>
+            <p className="mt-6 text-2xl font-bold">Confirm with your fingerprint</p>
+            <p className="mt-2 text-muted">Just like you do in KBC Mobile.</p>
           </div>
         )}
 
@@ -307,15 +310,15 @@ function ParentOnboarding() {
           <div className="flex flex-1 flex-col text-center">
             <div className="pt-6">
               <SuccessMark large />
-              <h1 className="mt-6 text-3xl font-bold">Dank u, Maria</h1>
+              <h1 className="mt-6 text-3xl font-bold">Thank you, Maria</h1>
               <p className="mt-4 text-ink">
-                {people.map((p) => firstName(p.id)).join(", ").replace(/, ([^,]*)$/, " en $1")} {people.length === 1 ? "krijgt" : "krijgen"} nu een uitnodiging.
+                {names(people.map((p) => p.id))} {people.length === 1 ? "gets" : "get"} an invitation now.
               </p>
-              <p className="mt-3 text-ink">U houdt de sleutel. Altijd.</p>
+              <p className="mt-3 text-ink">You can see and change who helps you in My Mantel.</p>
             </div>
             <div className="mt-auto space-y-3 pt-8">
               <Button size="xl" full onClick={() => router.push("/maria")}>
-                Naar mijn Mantel
+                Go to My Mantel
               </Button>
             </div>
           </div>
@@ -332,7 +335,7 @@ function RoleScreen({ id, current, onPick }: { id: PersonId; current?: RoleId; o
       <div className="flex items-center gap-3">
         <Avatar id={id} size="xl" />
       </div>
-      <h1 className="mt-4 text-3xl font-bold">Wat mag {name} doen?</h1>
+      <h1 className="mt-4 text-3xl font-bold">What may {name} do?</h1>
       <div className="mt-6 space-y-3">
         {ROLE_OPTIONS.map((o) => {
           const Icon = o.icon;

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ChevronRight, HeartHandshake, Phone, ScrollText, ShieldCheck, Users } from "lucide-react";
 import { PEOPLE, firstName } from "@/lib/data";
 import { euro } from "@/lib/format";
-import { actions, FRAUD_TX } from "@/lib/store";
+import { actions, FRAUD_RULE, FRAUD_TX } from "@/lib/store";
 import { useDemo } from "@/lib/store";
 import { Avatar, Button, ButtonLink, toast } from "@/components/ui";
 
@@ -12,88 +12,89 @@ export default function MariaHome() {
   const s = useDemo();
   const pending = s.approvals.find((a) => a.elder === "maria" && a.status === "pending");
   const fraudOpen = s.fraud === "alert" || s.fraud === "calling" || s.fraud === "blocking";
+  const fraudNotified = (s.rules.maria.find((r) => r.condition === FRAUD_RULE)?.notify ?? ["sarah", "ann"]).map(firstName).join(" and ");
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-ink">Dag Maria</h1>
+      <h1 className="text-3xl font-bold text-ink">Hello Maria</h1>
 
       <div className="mt-5">
         {fraudOpen && s.fraudAnswer === "none" ? (
           <FocusCard tone="attention">
-            <p className="text-lg font-semibold text-attention">Een vraag van KBC</p>
-            <h2 className="mt-1 text-2xl font-bold text-ink">Was u dit?</h2>
+            <p className="text-lg font-semibold text-attention">A question from KBC</p>
+            <h2 className="mt-1 text-2xl font-bold text-ink">Was this you?</h2>
             <p className="mt-3 text-ink">
-              Een overschrijving van <strong>{euro(FRAUD_TX.amount)}</strong> naar &ldquo;{FRAUD_TX.name}&rdquo;. We hebben ze tegengehouden.
+              A transfer of <strong>{euro(FRAUD_TX.amount)}</strong> to &ldquo;{FRAUD_TX.name}&rdquo;. We have put it on hold.
             </p>
             <div className="mt-5 space-y-3">
               <Button full size="xl" onClick={() => actions.answerFraud()}>
-                Nee, dat was ik niet
+                No, that wasn’t me
               </Button>
-              <Button full size="xl" variant="secondary" onClick={() => toast("Bedankt. Bel ons even om het samen te bevestigen.")}>
-                Ja, dat was ik
+              <Button full size="xl" variant="secondary" onClick={() => toast("Thank you. Please call us so we can confirm it together.")}>
+                Yes, that was me
               </Button>
             </div>
           </FocusCard>
         ) : fraudOpen ? (
           <FocusCard tone="calm">
             <ShieldCheck className="size-10 text-calm" aria-hidden />
-            <h2 className="mt-2 text-2xl font-bold text-ink">Goed dat u het zegt</h2>
-            <p className="mt-2 text-ink">Uw geld staat nog op uw rekening. Sarah en Ann zijn verwittigd, zoals u zelf vroeg.</p>
+            <h2 className="mt-2 text-2xl font-bold text-ink">Thank you for telling us</h2>
+            <p className="mt-2 text-ink">Your money is still in your account. We have let {fraudNotified} know, as you asked.</p>
           </FocusCard>
         ) : s.fraud === "resolved" ? (
           <FocusCard tone="calm">
             <ShieldCheck className="size-10 text-calm" aria-hidden />
-            <h2 className="mt-2 text-2xl font-bold text-ink">Uw geld is veilig</h2>
-            <p className="mt-2 text-ink">Sarah heeft de verdachte overschrijving samen met KBC gestopt. Morgen belt KBC u even.</p>
+            <h2 className="mt-2 text-2xl font-bold text-ink">The transfer has been stopped</h2>
+            <p className="mt-2 text-ink">Sarah blocked the suspicious transfer together with KBC. We will give you a call tomorrow.</p>
           </FocusCard>
         ) : pending ? (
           <FocusCard>
             <div className="flex items-center gap-3">
               <Avatar id={pending.requestedBy} size="lg" />
-              <p className="text-lg font-semibold text-muted">{firstName(pending.requestedBy)} vraagt iets</p>
+              <p className="text-lg font-semibold text-muted">{firstName(pending.requestedBy)} has a question</p>
             </div>
-            <h2 className="mt-3 text-2xl font-bold text-ink">Mag deze betaling gebeuren?</h2>
+            <h2 className="mt-3 text-2xl font-bold text-ink">Can this payment go ahead?</h2>
             <ButtonLink href="/maria/goedkeuren" full size="xl" className="mt-5">
-              Bekijken
+              Take a look
             </ButtonLink>
           </FocusCard>
         ) : s.mantel.maria !== "active" ? (
           <FocusCard>
             <HeartHandshake className="size-10 text-brand" aria-hidden />
             <h2 className="mt-2 text-2xl font-bold text-ink">
-              {s.pendingInvite ? `${firstName(s.pendingInvite.by)} nodigde u uit` : "Wie zou u vertrouwen?"}
+              {s.pendingInvite ? `${firstName(s.pendingInvite.by)} has invited you` : "Would you like someone to help you?"}
             </h2>
             <p className="mt-2 text-ink">
               {s.pendingInvite
-                ? "Sarah wil u helpen. U beslist zelf wat zij mag zien of doen."
-                : "Kies iemand die u kan helpen als dat ooit nodig is. U beslist alles zelf."}
+                ? `${firstName(s.pendingInvite.by)} would like to help you. You decide what she may see or do.`
+                : "For example, to pay a bill if you can’t. You choose what they may do."}
             </p>
             <ButtonLink href="/onboarding/ouder" full size="xl" className="mt-5">
-              {s.pendingInvite ? "Uitnodiging bekijken" : "Iemand kiezen"}
+              {s.pendingInvite ? "View the invitation" : "Choose someone"}
             </ButtonLink>
           </FocusCard>
         ) : (
           <FocusCard tone="calm">
             <ShieldCheck className="size-10 text-calm" aria-hidden />
-            <h2 className="mt-2 text-2xl font-bold text-ink">Alles is rustig</h2>
-            <p className="mt-2 text-ink">Er is niets dat op u wacht.</p>
+            <h2 className="mt-2 text-2xl font-bold text-ink">Everything is in order</h2>
+            <p className="mt-2 text-ink">Nothing is waiting for you.</p>
           </FocusCard>
         )}
       </div>
 
       {s.mantel.maria === "active" && (
         <nav className="mt-8 space-y-3">
-          <BigLink href="/maria/toestemming" icon={Users} title="Wie helpt mij?" sub={helpers(s)} />
-          <BigLink href="/maria/toestemming#logboek" icon={ScrollText} title="Wat deden ze?" sub="Alles wat uw familie deed" />
+          <BigLink href="/maria/toestemming" icon={Users} title="Who helps me?" sub={helpers(s)} />
+          <BigLink href="/maria/toestemming#logboek" icon={ScrollText} title="What did they do?" sub="Everything your helpers did" />
         </nav>
       )}
 
       <button
         type="button"
-        onClick={() => toast("U wordt doorverbonden met KBC Live.")}
+        onClick={() => toast("Connecting you to KBC Live.")}
         className="mt-8 flex w-full items-center justify-center gap-3 rounded-2xl py-4 text-xl font-semibold text-navy ring-2 ring-inset ring-line"
       >
-        <Phone className="size-6" aria-hidden /> Bel KBC
+        <Phone className="size-6" aria-hidden /> Call KBC
       </button>
     </div>
   );
@@ -101,7 +102,7 @@ export default function MariaHome() {
 
 function helpers(s: ReturnType<typeof useDemo>) {
   const names = s.circles.maria.filter((m) => m.status !== "revoked").map((m) => PEOPLE[m.personId].firstName);
-  return names.length ? names.join(", ") : "Nog niemand";
+  return names.length ? names.join(", ") : "No one yet";
 }
 
 function FocusCard({ children, tone }: { children: React.ReactNode; tone?: "attention" | "calm" }) {

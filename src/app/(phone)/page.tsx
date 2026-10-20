@@ -22,9 +22,12 @@ export default function PathPicker() {
       </div>
 
       <h1 className="mt-8 text-[28px] font-bold leading-[1.15] tracking-tight text-ink">
-        Samen zorgen. <span className="text-brand">De ouder houdt de sleutel.</span>
+        Helping a parent with their <span className="text-brand">banking and care?</span>
       </h1>
-      <p className="mt-3 text-[15px] text-muted">Kies een pad en klik zelf door de app. Een gids onderaan toont telkens wat u kan aantikken.</p>
+      <p className="mt-3 text-[15px] text-muted">
+        With KBC Mantel, your parent decides who can help, and what they can see or do.
+      </p>
+      <p className="mt-2 text-[15px] text-muted">Pick a path and tap through the app yourself. The guide shows you what to tap at every step.</p>
 
       <ol className="mt-6 space-y-3">
         {TOURS.map((t, i) => (
@@ -44,7 +47,7 @@ export default function PathPicker() {
                       <Avatar key={p} id={p} size="sm" ring />
                     ))}
                   </span>
-                  <span className="text-xs font-semibold text-muted">{t.steps.length} stappen · ± 1 min</span>
+                  <span className="text-xs font-semibold text-muted">{t.steps.length} steps · about 1 min</span>
                 </span>
               </span>
               <ArrowRight className="mt-3 size-5 shrink-0 text-navy transition-transform group-hover:translate-x-0.5" aria-hidden />
@@ -53,19 +56,23 @@ export default function PathPicker() {
         ))}
       </ol>
 
+      <p className="mt-5 px-1 text-xs text-faint">
+        Why “Mantel”? In Flemish, <em>mantelzorg</em> is the care that family, friends and neighbours give each other.
+      </p>
+
       <div className="mt-auto flex items-center justify-between gap-3 pt-8">
         <Link href="/kbc" className="inline-flex items-center gap-1.5 text-sm font-semibold text-navy">
-          <BarChart3 className="size-4" aria-hidden /> KBC-zicht
+          <BarChart3 className="size-4" aria-hidden /> KBC view
         </Link>
         <button
           type="button"
           onClick={() => {
             actions.reset();
-            toast("De demo staat terug op nul.");
+            toast("The demo has been reset.");
           }}
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted"
         >
-          <RotateCcw className="size-4" aria-hidden /> Opnieuw beginnen
+          <RotateCcw className="size-4" aria-hidden /> Start over
         </button>
       </div>
     </div>

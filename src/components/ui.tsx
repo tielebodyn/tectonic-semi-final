@@ -134,7 +134,7 @@ export function RoleExplainer({ role, limit, compact }: { role: RoleId; limit?: 
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <RoleBadge role={role} />
-        {role === "handelen" && limit ? <span className="text-xs font-medium text-muted">tot €{limit} per betaling</span> : null}
+        {role === "handelen" && limit ? <span className="text-xs font-medium text-muted">up to €{limit} per payment</span> : null}
       </div>
       <p className="text-sm text-ink">{r.short}</p>
       {!compact && (
@@ -172,7 +172,7 @@ export function Avatar({ id, size = "md", ring }: { id: PersonId; size?: "sm" | 
 // ---------------------------------------------------------------------------
 // Transparency
 
-export function WhyThis({ children, label = "Waarom zie ik dit?", defaultOpen = false, large }: { children: ReactNode; label?: string; defaultOpen?: boolean; large?: boolean }) {
+export function WhyThis({ children, label = "Why am I seeing this?", defaultOpen = false, large }: { children: ReactNode; label?: string; defaultOpen?: boolean; large?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div>
@@ -246,12 +246,12 @@ export function Sheet({ open, onClose, title, children, large }: { open: boolean
   if (!open) return null;
   return createPortal(
     <div className="pointer-events-auto absolute inset-0 z-40 flex flex-col justify-end">
-      <button type="button" aria-label="Sluiten" className="absolute inset-0 animate-fade-in bg-navy/35 backdrop-blur-[2px]" onClick={onClose} />
+      <button type="button" aria-label="Close" className="absolute inset-0 animate-fade-in bg-navy/35 backdrop-blur-[2px]" onClick={onClose} />
       <div role="dialog" aria-modal="true" aria-label={title} className="relative max-h-[88%] animate-slide-up overflow-y-auto rounded-t-[28px] bg-white px-5 pb-8 pt-3 no-scrollbar">
         <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-line" />
         <div className="mb-3 flex items-start justify-between gap-3">
           {title && <h2 className={cx("font-bold text-ink", large ? "text-2xl" : "text-lg")}>{title}</h2>}
-          <button type="button" onClick={onClose} className="-mr-1 rounded-full p-1.5 text-muted hover:bg-canvas" aria-label="Sluiten">
+          <button type="button" onClick={onClose} className="-mr-1 rounded-full p-1.5 text-muted hover:bg-canvas" aria-label="Close">
             <X className="size-5" />
           </button>
         </div>

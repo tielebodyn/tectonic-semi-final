@@ -1,7 +1,7 @@
 export type ElderId = "maria" | "jozef";
 export type PersonId = "maria" | "jozef" | "sarah" | "tom" | "ann" | "pieter" | "lieve";
 export type RoleId = "meldingen" | "inzage" | "handelen";
-export type Region = "Gent" | "Aalst";
+export type Region = "Ghent" | "Aalst";
 
 export type Person = {
   id: PersonId;
@@ -29,7 +29,7 @@ export type Member = {
 
 export type Rule = {
   id: string;
-  /** "Als ..." part */
+  /** The "If ..." part */
   condition: string;
   /** People who get notified */
   notify: PersonId[];

@@ -76,7 +76,7 @@ function PushBanner() {
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-muted">
-          KBC Mantel <span className="font-medium normal-case tracking-normal">nu</span>
+          KBC Mantel <span className="font-medium normal-case tracking-normal">now</span>
         </span>
         <span className="mt-0.5 block text-sm font-bold text-ink">{push.title}</span>
         <span className="block text-sm text-muted">{push.body}</span>

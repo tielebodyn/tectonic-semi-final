@@ -26,10 +26,10 @@ function Approval() {
   if (!approval) {
     return (
       <div className="pt-10 text-center">
-        <h1 className="text-3xl font-bold">Er wacht niets op u</h1>
-        <p className="mt-3 text-muted">Als iemand iets vraagt, ziet u het hier.</p>
+        <h1 className="text-3xl font-bold">Nothing is waiting for you</h1>
+        <p className="mt-3 text-muted">If someone asks you something, you will see it here.</p>
         <ButtonLink href="/maria" size="xl" full className="mt-8">
-          Terug
+          Back
         </ButtonLink>
       </div>
     );
@@ -42,10 +42,10 @@ function Approval() {
     return (
       <div className="pt-6 text-center">
         <SuccessMark large />
-        <h1 className="mt-6 text-3xl font-bold">{phase === "approved" ? "Betaald" : "Niet betaald"}</h1>
-        <p className="mt-3 text-ink">{phase === "approved" ? `${who} krijgt bericht dat de betaling gebeurd is.` : `${who} krijgt bericht dat u nee zei.`}</p>
+        <h1 className="mt-6 text-3xl font-bold">{phase === "approved" ? "Paid" : "Not paid"}</h1>
+        <p className="mt-3 text-ink">{phase === "approved" ? `We will let ${who} know the bill is paid.` : `We will let ${who} know you said no.`}</p>
         <ButtonLink href="/maria" size="xl" full variant="secondary" className="mt-8">
-          Klaar
+          Done
         </ButtonLink>
       </div>
     );
@@ -63,9 +63,9 @@ function Approval() {
     <div>
       <div className="flex items-center gap-3">
         <Avatar id={approval.requestedBy} size="xl" />
-        <p className="text-xl font-semibold text-muted">{who} vraagt uw goedkeuring</p>
+        <p className="text-xl font-semibold text-muted">{who} asks for your approval</p>
       </div>
-      <h1 className="mt-6 text-3xl font-bold leading-tight text-ink">Mag {who} dit betalen?</h1>
+      <h1 className="mt-6 text-3xl font-bold leading-tight text-ink">May {who} pay this?</h1>
 
       <div className="mt-6 rounded-3xl bg-canvas p-6">
         <p className="text-5xl font-bold tabular-nums text-ink">{euro(bill.amount)}</p>
@@ -73,14 +73,14 @@ function Approval() {
         <p className="text-xl text-muted">{bill.description}</p>
       </div>
 
-      <p className="mt-5 text-ink">Dit is meer dan €{s.limits.maria}. Daarom vragen we het eerst aan u.</p>
+      <p className="mt-5 text-ink">This is more than €{s.limits.maria}, so we ask you first.</p>
 
       <div className="mt-8 space-y-3">
         <Button size="xl" full variant="calm" loading={phase === "busy"} onClick={() => decide(true)}>
-          Ja, dat mag
+          Yes, go ahead
         </Button>
         <Button size="xl" full variant="secondary" disabled={phase === "busy"} onClick={() => decide(false)}>
-          Nee, liever niet
+          No, don’t pay
         </Button>
       </div>
     </div>

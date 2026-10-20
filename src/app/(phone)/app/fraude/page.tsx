@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { BellRing, Check, CircleCheck, Home, Phone, PhoneOff, ShieldCheck, ShieldOff } from "lucide-react";
 import { DEMO_TODAY, PEOPLE, firstName } from "@/lib/data";
 import { euro, when } from "@/lib/format";
-import { actions, FRAUD_TX } from "@/lib/store";
+import { actions, FRAUD_RULE, FRAUD_TX } from "@/lib/store";
 import { useCurrent } from "@/lib/use-current";
 import { Avatar, Badge, Button, ButtonLink, Card, SectionTitle, Sheet, Spinner, SuccessMark, WhyThis, cx, toast, wait } from "@/components/ui";
 
@@ -15,8 +15,8 @@ export default function FraudPage() {
     return (
       <Card className="mt-2 py-10 text-center">
         <ShieldCheck className="mx-auto size-9 text-calm" aria-hidden />
-        <p className="mt-2 font-semibold">Geen meldingen</p>
-        <p className="text-sm text-muted">Alles is rustig op de rekening.</p>
+        <p className="mt-2 font-semibold">No alerts</p>
+        <p className="text-sm text-muted">Nothing unusual on the account.</p>
       </Card>
     );
   }
@@ -27,20 +27,20 @@ export default function FraudPage() {
 
 function RuleCard() {
   const { s } = useCurrent();
-  const rule = s.rules.maria.find((r) => r.condition.includes("verdachts"));
+  const rule = s.rules.maria.find((r) => r.condition === FRAUD_RULE);
   const notified = rule?.notify ?? [];
   const others = s.circles.maria.filter((m) => m.status === "active" && !notified.includes(m.personId));
   return (
     <Card className="space-y-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted">De regel van Maria</p>
-      <p className="text-base font-semibold text-ink">&ldquo;Als er iets verdachts gebeurt op mijn rekening, verwittig {notified.map(firstName).join(" en ")}.&rdquo;</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted">Maria&rsquo;s rule</p>
+      <p className="text-base font-semibold text-ink">&ldquo;{FRAUD_RULE}, let {notified.map(firstName).join(" and ")} know.&rdquo;</p>
       <div className="space-y-2">
         {notified.map((p) => (
           <div key={p} className="flex items-center gap-2 text-sm">
             <Avatar id={p} size="sm" />
             <span className="flex-1 font-semibold">{PEOPLE[p].firstName}</span>
             <Badge tone="calm">
-              <Check className="size-3" aria-hidden /> verwittigd
+              <Check className="size-3" aria-hidden /> alerted
             </Badge>
           </div>
         ))}
@@ -48,7 +48,7 @@ function RuleCard() {
           <div key={m.personId} className="flex items-center gap-2 text-sm text-muted">
             <Avatar id={m.personId} size="sm" />
             <span className="flex-1">{PEOPLE[m.personId].firstName}</span>
-            <span className="text-xs">niet in deze regel</span>
+            <span className="text-xs">not in this rule</span>
           </div>
         ))}
       </div>
@@ -71,36 +71,36 @@ function FullView() {
   return (
     <div>
       <div className="flex items-center gap-2 px-1 text-sm font-bold text-attention">
-        <BellRing className="size-4" aria-hidden /> Melding volgens Maria&rsquo;s regel
+        <BellRing className="size-4" aria-hidden /> Alert based on Maria&rsquo;s rule
       </div>
-      <h1 className="mt-1 px-1 text-2xl font-bold leading-tight tracking-tight">Een ongewone overschrijving werd tegengehouden</h1>
-      <p className="mt-2 px-1 text-sm text-muted">Het geld staat nog op Maria&rsquo;s rekening. Er is tijd om rustig samen te kijken.</p>
+      <h1 className="mt-1 px-1 text-2xl font-bold leading-tight tracking-tight">We put an unusual transfer on hold</h1>
+      <p className="mt-2 px-1 text-sm text-muted">The money is still in Maria&rsquo;s account. Check with her that it wasn&rsquo;t her, then block it with KBC.</p>
 
       <Card className="mt-4 space-y-3">
         <div className="flex items-center justify-between">
-          <Badge tone="attention">tijdelijk tegengehouden</Badge>
-          <span className="text-xs text-muted">{s.fraudAt ? when(s.fraudAt) : "zonet"}</span>
+          <Badge tone="attention">on hold</Badge>
+          <span className="text-xs text-muted">{s.fraudAt ? when(s.fraudAt) : "just now"}</span>
         </div>
         <p className="text-3xl font-bold tabular-nums text-ink">{euro(FRAUD_TX.amount)}</p>
         <div className="space-y-1 text-sm">
           <p>
-            <span className="text-muted">Naar: </span>
+            <span className="text-muted">To: </span>
             <span className="font-semibold">{FRAUD_TX.name}</span>
           </p>
           <p>
-            <span className="text-muted">Rekening: </span>
+            <span className="text-muted">Account: </span>
             {FRAUD_TX.iban}
           </p>
           <p>
-            <span className="text-muted">Via: </span>
+            <span className="text-muted">Made in: </span>
             {FRAUD_TX.channel}
           </p>
         </div>
-        <WhyThis label="Waarom vond KBC dit ongewoon?" defaultOpen>
+        <WhyThis label="Why does KBC find this unusual?" defaultOpen>
           <ul className="list-disc space-y-1 pl-4">
-            <li>Maria betaalde nog nooit naar dit rekeningnummer.</li>
-            <li>Het bedrag is veel hoger dan normaal: gemiddeld betaalt ze {euro(FRAUD_TX.avg)}.</li>
-            <li>De opdracht kwam van een toestel dat Maria nooit eerder gebruikte.</li>
+            <li>Maria has never paid this account before.</li>
+            <li>The amount is much higher than usual. On average, she pays {euro(FRAUD_TX.avg)}.</li>
+            <li>The transfer came from a device Maria has never used before.</li>
           </ul>
         </WhyThis>
       </Card>
@@ -108,33 +108,33 @@ function FullView() {
       <Card className="mt-3 flex items-start gap-3">
         <Avatar id="maria" />
         <div className="text-sm">
-          <p className="font-semibold text-ink">Maria kreeg ook de vraag &ldquo;Was u dit?&rdquo;</p>
-          <p className="text-muted">{s.fraudAnswer === "not-me" ? "Maria antwoordde: “Nee, dat was ik niet.”" : "Ze heeft nog niet geantwoord."}</p>
+          <p className="font-semibold text-ink">We also asked Maria: &ldquo;Was this you?&rdquo;</p>
+          <p className="text-muted">{s.fraudAnswer === "not-me" ? "Maria answered: “No, that wasn’t me.”" : "She hasn’t answered yet."}</p>
         </div>
       </Card>
 
       <div className="mt-4 space-y-2">
         <Button full size="lg" onClick={() => setCalling(true)} disabled={blocking}>
-          <Phone className="size-4" aria-hidden /> Bel mama
+          <Phone className="size-4" aria-hidden /> Call Mum
         </Button>
         {canAct ? (
           <Button full size="lg" variant="secondary" onClick={block} loading={blocking}>
-            {blocking ? "KBC blokkeert de overschrijving…" : <><ShieldOff className="size-4" aria-hidden /> Blokkeer samen met KBC</>}
+            {blocking ? "KBC is blocking the transfer…" : <><ShieldOff className="size-4" aria-hidden /> Block it with KBC</>}
           </Button>
         ) : (
-          <p className="rounded-2xl bg-canvas p-3 text-center text-xs text-muted">Sarah heeft Handelen en kan samen met KBC blokkeren.</p>
+          <p className="rounded-2xl bg-canvas p-3 text-center text-xs text-muted">Only Sarah (Pay role) can block it with KBC.</p>
         )}
       </div>
 
       {blocking && (
         <Card className="mt-3 space-y-2 text-sm">
-          <BlockStep delay={0} text="Verbonden met het KBC Fraudeteam" />
-          <BlockStep delay={900} text="Overschrijving definitief gestopt" />
-          <BlockStep delay={1800} text="Onbekend toestel losgekoppeld van Maria's KBC Mobile" />
+          <BlockStep delay={0} text="Connected to KBC Secure4u, the fraud team" />
+          <BlockStep delay={900} text="Transfer cancelled" />
+          <BlockStep delay={1800} text="Unknown device removed from Maria's KBC Mobile" />
         </Card>
       )}
 
-      <SectionTitle>Wie werd verwittigd?</SectionTitle>
+      <SectionTitle>Who was alerted?</SectionTitle>
       <RuleCard />
 
       <Sheet open={calling} onClose={() => setCalling(false)}>
@@ -157,23 +157,23 @@ function CallView({ onBlock, onEnd, viewerName }: { onBlock?: () => void; onEnd:
     <div className="space-y-5 pb-2 text-center">
       <Avatar id="maria" size="xl" />
       <div>
-        <p className="text-xl font-bold">Mama</p>
-        <p className="text-sm text-muted">{connected ? "In gesprek · 00:42" : "Bellen…"}</p>
+        <p className="text-xl font-bold">Mum</p>
+        <p className="text-sm text-muted">{connected ? "On call · 00:42" : "Calling…"}</p>
       </div>
       {connected ? (
         <div className="rounded-2xl bg-canvas p-4 text-left text-sm">
           <p className="font-semibold text-ink">Maria:</p>
-          <p className="text-ink">&ldquo;Nee {viewerName}, dat heb ik niet gedaan. Er belde net wel iemand die zei dat hij van de bank was&hellip;&rdquo;</p>
+          <p className="text-ink">&ldquo;No {viewerName}, that wasn&rsquo;t me. Someone did just call, saying he was from the bank&hellip;&rdquo;</p>
         </div>
       ) : (
         <Spinner className="mx-auto size-6 text-brand" />
       )}
       {connected && onBlock && (
         <Button full size="lg" onClick={onBlock}>
-          <ShieldOff className="size-4" aria-hidden /> Blokkeer samen met KBC
+          <ShieldOff className="size-4" aria-hidden /> Block it with KBC
         </Button>
       )}
-      <button type="button" onClick={onEnd} className="mx-auto flex size-14 items-center justify-center rounded-full bg-[#d64545] text-white" aria-label="Ophangen">
+      <button type="button" onClick={onEnd} className="mx-auto flex size-14 items-center justify-center rounded-full bg-[#d64545] text-white" aria-label="Hang up">
         <PhoneOff className="size-6" />
       </button>
     </div>
@@ -198,27 +198,27 @@ function AlertOnlyView() {
   return (
     <div>
       <div className="flex items-center gap-2 px-1 text-sm font-bold text-attention">
-        <BellRing className="size-4" aria-hidden /> Melding volgens Maria&rsquo;s regel
+        <BellRing className="size-4" aria-hidden /> Alert based on Maria&rsquo;s rule
       </div>
-      <h1 className="mt-1 px-1 text-2xl font-bold leading-tight">Er gebeurde iets ongewoons op de rekening van Maria</h1>
-      <p className="mt-2 px-1 text-sm text-muted">KBC heeft het tegengehouden. Sarah is ook verwittigd en kijkt mee.</p>
+      <h1 className="mt-1 px-1 text-2xl font-bold leading-tight">Something unusual happened on Maria&rsquo;s account</h1>
+      <p className="mt-2 px-1 text-sm text-muted">KBC has put a transfer on hold. Sarah has also been alerted and is dealing with it.</p>
 
       <Card className="mt-4 space-y-2 text-sm">
-        <p className="font-semibold text-ink">Wat kan u doen?</p>
-        <p className="text-ink">Een vertrouwd gezicht helpt. Bel Maria even, of ga bij haar langs.</p>
+        <p className="font-semibold text-ink">What can you do?</p>
+        <p className="text-ink">You can call Maria or visit her.</p>
       </Card>
 
       <div className="mt-4 space-y-2">
-        <Button full size="lg" onClick={() => toast("U belt Maria.")}>
-          <Phone className="size-4" aria-hidden /> Bel Maria
+        <Button full size="lg" onClick={() => toast("Calling Maria.")}>
+          <Phone className="size-4" aria-hidden /> Call Maria
         </Button>
-        <Button full size="lg" variant="secondary" onClick={() => toast("Sarah weet dat u even bij Maria langsgaat.")}>
-          <Home className="size-4" aria-hidden /> Ik ga even langs
+        <Button full size="lg" variant="secondary" onClick={() => toast("We've let Sarah know you're popping round to Maria.")}>
+          <Home className="size-4" aria-hidden /> I&rsquo;ll pop round
         </Button>
       </div>
 
       <p className="mt-4 rounded-2xl bg-canvas p-3 text-xs text-muted">
-        Met de rol Meldingen ziet u geen bedragen of rekeninggegevens. Zo koos Maria het.
+        With the Alerts role, you don’t see amounts or account details. Maria chose these settings.
       </p>
     </div>
   );
@@ -227,23 +227,22 @@ function AlertOnlyView() {
 function Resolved() {
   const { role, s } = useCurrent();
   const base = new Date(s.fraudAt ?? `${DEMO_TODAY}T14:00:00`).getTime();
-  const at = (min: number) => new Date(base + min * 60_000).toLocaleTimeString("nl-BE", { hour: "2-digit", minute: "2-digit" });
+  const at = (min: number) => new Date(base + min * 60_000).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
   return (
     <div className="pt-2 text-center">
       <SuccessMark large />
-      <h1 className="mt-5 text-2xl font-bold">De fraudepoging is gestopt</h1>
+      <h1 className="mt-5 text-2xl font-bold">The fraud attempt has been stopped</h1>
       <p className="mx-auto mt-2 max-w-xs text-sm text-muted">
-        {role === "meldingen" ? "Het geld van Maria is veilig." : `${euro(FRAUD_TX.amount)} bleef op Maria's rekening.`} Dankzij haar eigen regel waren de juiste mensen op tijd
-        verwittigd.
+        {role === "meldingen" ? "The money is still in Maria’s account." : `${euro(FRAUD_TX.amount)} is still in Maria’s account.`} Sarah and Ann were alerted through the rule Maria set up.
       </p>
 
       <Card className="mt-6 text-left">
         <ol className="space-y-3 text-sm">
           {[
-            [at(0), "KBC hield een ongewone overschrijving tegen"],
-            [at(0), "Sarah en Ann verwittigd, volgens de regel van Maria"],
-            [at(1), "Sarah belde Maria: zij herkende de overschrijving niet"],
-            [at(2), "Sarah blokkeerde de overschrijving samen met KBC"],
+            [at(0), "KBC put an unusual transfer on hold"],
+            [at(0), "Sarah and Ann alerted, as set in Maria's rule"],
+            [at(1), "Sarah called Maria: she didn't recognise the transfer"],
+            [at(2), "Sarah blocked the transfer with KBC Secure4u"],
           ].map(([t, txt]) => (
             <li key={txt} className="flex gap-3">
               <span className="w-11 shrink-0 font-semibold tabular-nums text-muted">{t}</span>
@@ -254,14 +253,14 @@ function Resolved() {
         </ol>
       </Card>
 
-      <SectionTitle>Wat nu?</SectionTitle>
+      <SectionTitle>What happens next?</SectionTitle>
       <Card className="space-y-2 text-left text-sm">
-        <p className="text-ink">Morgen belt een medewerker van KBC Maria om alles rustig te overlopen.</p>
-        <p className="text-muted">Goed om te weten: KBC vraagt nooit om codes via de telefoon of sms.</p>
+        <p className="text-ink">Tomorrow, someone from KBC will call Maria to go through everything with her.</p>
+        <p className="text-muted">Good to know: KBC will never ask for your codes by phone or text message.</p>
       </Card>
 
       <ButtonLink href="/app" variant="secondary" className="mt-5">
-        Terug naar overzicht
+        Back to Home
       </ButtonLink>
     </div>
   );

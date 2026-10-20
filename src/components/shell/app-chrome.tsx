@@ -20,14 +20,14 @@ export function AppHeader() {
   return (
     <header className="relative z-30 bg-navy px-4 pb-4 pt-3 text-white">
       <div className="flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2" aria-label="KBC Mantel, naar de demopaden">
+        <Link href="/" className="flex items-center gap-2" aria-label="KBC Mantel, back to the demo paths">
           <span className="flex size-7 items-center justify-center rounded-lg bg-white/10">
             <KeyRound className="size-3.5" aria-hidden />
           </span>
           <span className="text-[15px] font-bold tracking-tight">KBC Mantel</span>
         </Link>
         <div className="flex items-center gap-2">
-          <Link href={role === "meldingen" ? "/app" : "/app/signalen"} className="relative rounded-full p-2 hover:bg-white/10" aria-label="Meldingen">
+          <Link href={role === "meldingen" ? "/app" : "/app/signalen"} className="relative rounded-full p-2 hover:bg-white/10" aria-label="Alerts">
             <Bell className="size-5" />
             {alertCount > 0 && <span className="absolute right-1.5 top-1.5 size-2.5 rounded-full bg-[#ffb547] ring-2 ring-navy" />}
           </Link>
@@ -47,41 +47,41 @@ export function AppHeader() {
           >
             <Avatar id={elder} size="lg" />
             <span className="min-w-0 flex-1">
-              <span className="block text-[11px] font-semibold uppercase tracking-[0.1em] text-white/60">Mantel van</span>
+              <span className="block text-[11px] font-semibold uppercase tracking-[0.1em] text-white/60">Mantel of</span>
               <span className="block text-lg font-bold leading-tight">
                 {elderPerson.firstName} {elderPerson.lastName}
               </span>
               <span className="block text-xs text-white/70">
-                {elderPerson.age} jaar · {profile.region}
+                {elderPerson.age} years old · {profile.region}
               </span>
             </span>
-            {links.length > 1 && <Badge className="bg-white/15 text-white ring-white/20">{links.length} ouders</Badge>}
+            {links.length > 1 && <Badge className="bg-white/15 text-white ring-white/20">{links.length} parents</Badge>}
             <ChevronDown className="size-5 text-white/70" aria-hidden />
           </button>
 
           <button type="button" onClick={() => setRoleInfo(true)} className="mt-2.5 flex w-full items-center gap-2 text-left text-xs text-white/80">
             {role ? (
               <>
-                <span>Uw rol:</span>
+                <span>Your role:</span>
                 <RoleBadge role={role} size="sm" />
                 <span className="truncate">
-                  {role === "handelen" ? `tot €${limit} per betaling` : role === "inzage" ? "bekijken, niet betalen" : "enkel meldingen"}
+                  {role === "handelen" ? `up to €${limit} per payment` : role === "inzage" ? "see, not pay" : "alerts only"}
                 </span>
-                {member?.guest && <Badge className="ml-auto bg-white/10 text-white ring-white/20">gast</Badge>}
+                {member?.guest && <Badge className="ml-auto bg-white/10 text-white ring-white/20">guest</Badge>}
               </>
             ) : (
               <>
                 <Clock className="size-3.5" aria-hidden />
-                <span>Wacht op goedkeuring van {elderPerson.firstName}. Er is nog niets gedeeld.</span>
+                <span>Waiting for {elderPerson.firstName} to accept. Nothing is shared yet.</span>
               </>
             )}
           </button>
         </>
       ) : (
-        <p className="mt-3 text-sm text-white/75">U bent nog in geen enkele Mantel.</p>
+        <p className="mt-3 text-sm text-white/75">You&rsquo;re not part of a Mantel yet.</p>
       )}
 
-      <Sheet open={switcher} onClose={() => setSwitcher(false)} title="Voor wie zorgt u?">
+      <Sheet open={switcher} onClose={() => setSwitcher(false)} title="Who are you caring for?">
         <div className="space-y-2">
           {links.map((l) => (
             <button
@@ -103,10 +103,10 @@ export function AppHeader() {
                   {PEOPLE[l.elder].firstName} {PEOPLE[l.elder].lastName}
                 </span>
                 <span className="block text-sm text-muted">
-                  {PEOPLE[l.elder].age} jaar · {PEOPLE[l.elder].city}
+                  {PEOPLE[l.elder].age} years old · {PEOPLE[l.elder].city}
                 </span>
               </span>
-              {l.role ? <RoleBadge role={l.role} /> : <Badge tone="attention">{l.state === "waiting" ? "wacht op goedkeuring" : "uitgenodigd"}</Badge>}
+              {l.role ? <RoleBadge role={l.role} /> : <Badge tone="attention">{l.state === "waiting" ? "waiting to accept" : "invited"}</Badge>}
             </button>
           ))}
           {viewer === "sarah" && (
@@ -118,27 +118,27 @@ export function AppHeader() {
               <span className="flex size-12 items-center justify-center rounded-full bg-brand-soft">
                 <Plus className="size-5" aria-hidden />
               </span>
-              Start een Mantel voor iemand anders
+              Start a Mantel for someone else
             </Link>
           )}
           <p className="flex gap-2 px-1 pt-2 text-xs text-muted">
             <ShieldCheck className="size-4 shrink-0 text-calm" aria-hidden />
-            Uw rol is per persoon. Elke ouder kiest zelf wat u mag zien of doen.
+            Your role can differ per person. Each parent decides what you can see or do.
           </p>
         </div>
       </Sheet>
 
-      <Sheet open={roleInfo} onClose={() => setRoleInfo(false)} title="Wat mag ik doen?">
+      <Sheet open={roleInfo} onClose={() => setRoleInfo(false)} title="What can I do?">
         {role ? (
           <div className="space-y-4">
             <RoleExplainer role={role} limit={limit} />
             <p className="rounded-2xl bg-canvas p-3 text-sm text-muted">
-              {elderPerson.firstName} koos deze rol zelf en kan ze altijd aanpassen of stoppen. Alles wat u doet, wordt bijgehouden in het logboek en {elderPerson.firstName} krijgt
-              er een melding van.
+              {elderPerson.firstName} chose this role and can change or end it at any time. Everything you do is recorded in the activity log, and {elderPerson.firstName} is
+              notified.
             </p>
           </div>
         ) : (
-          <p className="text-sm text-muted">U hebt nog geen rol. {elderPerson.firstName} beslist zelf of en hoe u kan helpen.</p>
+          <p className="text-sm text-muted">You don&rsquo;t have a role yet. {elderPerson.firstName} decides if and how you can help.</p>
         )}
       </Sheet>
     </header>
@@ -154,21 +154,21 @@ export function BottomNav() {
   let items: NavItem[];
   if (!link || link.state !== "active") {
     items = [
-      { href: "/app", label: "Overzicht", icon: Home },
-      { href: "/app/diensten", label: "Diensten", icon: Store },
+      { href: "/app", label: "Home", icon: Home },
+      { href: "/app/diensten", label: "Services", icon: Store },
     ];
   } else if (role === "meldingen") {
     items = [
-      { href: "/app", label: "Meldingen", icon: Bell },
-      { href: "/app/kring", label: "Kring", icon: Users },
+      { href: "/app", label: "Alerts", icon: Bell },
+      { href: "/app/kring", label: "Circle", icon: Users },
     ];
   } else {
     items = [
-      { href: "/app", label: "Overzicht", icon: Home },
-      { href: "/app/signalen", label: "Signalen", icon: Sparkles },
-      { href: "/app/diensten", label: "Diensten", icon: Store },
-      { href: "/app/vermogen", label: "Vermogen", icon: Wallet },
-      { href: "/app/kring", label: "Kring", icon: Users },
+      { href: "/app", label: "Home", icon: Home },
+      { href: "/app/signalen", label: "Insights", icon: Sparkles },
+      { href: "/app/diensten", label: "Services", icon: Store },
+      { href: "/app/vermogen", label: "Finances", icon: Wallet },
+      { href: "/app/kring", label: "Circle", icon: Users },
     ];
   }
 

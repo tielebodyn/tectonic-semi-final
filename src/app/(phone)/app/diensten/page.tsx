@@ -21,9 +21,9 @@ export default function ServicesPage() {
 
   return (
     <div>
-      <h1 className="px-1 text-2xl font-bold tracking-tight">Diensten</h1>
+      <h1 className="px-1 text-2xl font-bold tracking-tight">Services</h1>
       <p className="mt-1 flex items-center gap-1 px-1 text-sm text-muted">
-        <MapPin className="size-3.5" aria-hidden /> {connected ? `Voor ${elderPerson.firstName}, in de regio ${profile.region}` : `Algemeen aanbod in ${profile.region}`}
+        <MapPin className="size-3.5" aria-hidden /> {connected ? `For ${elderPerson.firstName}, in the ${profile.region} area` : `All services in ${profile.region}`}
       </p>
 
       <div className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 no-scrollbar">
@@ -49,8 +49,8 @@ export default function ServicesPage() {
               <Building2 className="size-5" aria-hidden />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block font-bold text-ink">Woonzorgcentra in de buurt</span>
-              <span className="block text-sm text-muted">Beschikbaarheid, prijs en afstand rond {profile.region}</span>
+              <span className="block font-bold text-ink">Care homes nearby</span>
+              <span className="block text-sm text-muted">Availability, price and distance around {profile.region}</span>
             </span>
             <ArrowRight className="size-5 text-navy" aria-hidden />
           </Card>
@@ -59,7 +59,7 @@ export default function ServicesPage() {
 
       {recommended.length > 0 && (
         <>
-          <SectionTitle>Aanbevolen voor {elderPerson.firstName}</SectionTitle>
+          <SectionTitle>Recommended for {elderPerson.firstName}</SectionTitle>
           <div className="space-y-3">
             {recommended.map((x) => (
               <ServiceCard key={x.id} service={x} recommended />
@@ -70,7 +70,7 @@ export default function ServicesPage() {
 
       {others.length > 0 && (
         <>
-          <SectionTitle>{recommended.length ? "Ook in de buurt" : "In de buurt"}</SectionTitle>
+          <SectionTitle>{recommended.length ? "Also nearby" : "Nearby"}</SectionTitle>
           <div className="space-y-3">
             {others.map((x) => (
               <ServiceCard key={x.id} service={x} recommended={false} />
@@ -79,7 +79,7 @@ export default function ServicesPage() {
         </>
       )}
 
-      {filtered.length === 0 && !showCareHomes && <p className="py-8 text-center text-sm text-muted">Geen diensten in deze categorie in {profile.region}.</p>}
+      {filtered.length === 0 && !showCareHomes && <p className="py-8 text-center text-sm text-muted">No services in this category in {profile.region}.</p>}
     </div>
   );
 }

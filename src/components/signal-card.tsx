@@ -32,7 +32,7 @@ export function SignalCard({ signal, compact }: { signal: Signal; compact?: bool
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-semibold leading-snug text-ink">{signal.title}</span>
-          <span className="block text-xs text-muted">{shortDate(signal.date)}</span>
+          <span className="block text-xs text-muted">Kate noticed · {shortDate(signal.date)}</span>
         </span>
       </Link>
     );
@@ -45,17 +45,17 @@ export function SignalCard({ signal, compact }: { signal: Signal; compact?: bool
           <Icon className="size-5" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium text-muted">KBC merkte op · {shortDate(signal.date)}</p>
+          <p className="text-xs font-medium text-muted">Kate noticed · {shortDate(signal.date)}</p>
           <h3 className="mt-0.5 font-bold leading-snug text-ink">{signal.title}</h3>
         </div>
         <button
           type="button"
           onClick={() => {
             actions.dismissSignal(signal.id);
-            toast("Signaal verborgen.", { label: "Ongedaan maken", onClick: () => actions.restoreSignal(signal.id) });
+            toast("Insight hidden.", { label: "Undo", onClick: () => actions.restoreSignal(signal.id) });
           }}
           className="-mr-1 -mt-1 rounded-full p-1.5 text-faint hover:bg-canvas hover:text-muted"
-          aria-label="Signaal verbergen"
+          aria-label="Hide this insight"
         >
           <X className="size-4" />
         </button>
@@ -68,7 +68,7 @@ export function SignalCard({ signal, compact }: { signal: Signal; compact?: bool
           ))}
         </ul>
         <p className="mt-2 text-xs text-muted">
-          U ziet dit omdat {name} u toegang gaf tot {poss(signal.elder)} Mantel. KBC deelt nooit iets zonder toestemming van {name}.
+          You&rsquo;re seeing this because {name} gave you access to {poss(signal.elder)} Mantel. KBC never shares anything without {name}&rsquo;s consent.
         </p>
       </WhyThis>
       <div className="flex items-center justify-between gap-2 pt-1">
@@ -79,11 +79,11 @@ export function SignalCard({ signal, compact }: { signal: Signal; compact?: bool
           type="button"
           onClick={() => {
             actions.dismissSignal(signal.id);
-            toast("Signaal verborgen.", { label: "Ongedaan maken", onClick: () => actions.restoreSignal(signal.id) });
+            toast("Insight hidden.", { label: "Undo", onClick: () => actions.restoreSignal(signal.id) });
           }}
           className="text-sm font-medium text-muted hover:text-ink"
         >
-          Niet nu
+          Not now
         </button>
       </div>
     </Card>

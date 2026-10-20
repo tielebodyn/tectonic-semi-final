@@ -49,9 +49,9 @@ export type DemoState = {
 };
 
 const STORAGE_KEY = "kbc-mantel-demo";
-const VERSION = 5;
+const VERSION = 6;
 
-const FRAUD_RULE = "Als er iets verdachts gebeurt op mijn rekening";
+export const FRAUD_RULE = "If something suspicious happens on my account";
 
 function initialState(): DemoState {
   return {
@@ -63,16 +63,16 @@ function initialState(): DemoState {
     circles: {
       maria: [],
       jozef: [
-        { personId: "pieter", relation: "Zoon", role: "handelen", status: "active", since: "2026-03-02", guest: false },
-        { personId: "sarah", relation: "Schoondochter", role: "inzage", status: "active", since: "2026-03-02", guest: false },
-        { personId: "lieve", relation: "Dochter", role: "meldingen", status: "active", since: "2026-05-11", guest: true },
+        { personId: "pieter", relation: "Son", role: "handelen", status: "active", since: "2026-03-02", guest: false },
+        { personId: "sarah", relation: "Daughter-in-law", role: "inzage", status: "active", since: "2026-03-02", guest: false },
+        { personId: "lieve", relation: "Daughter", role: "meldingen", status: "active", since: "2026-05-11", guest: true },
       ],
     },
     rules: {
       maria: [],
       jozef: [
         { id: "j-fraud", condition: FRAUD_RULE, notify: ["pieter", "lieve"], active: true },
-        { id: "j-unpaid", condition: "Als een factuur 2 maanden niet betaald is", notify: ["pieter"], active: true },
+        { id: "j-unpaid", condition: "If a bill is still unpaid after 2 months", notify: ["pieter"], active: true },
       ],
     },
     limits: { maria: ELDERS.maria.limit, jozef: ELDERS.jozef.limit },
@@ -81,9 +81,9 @@ function initialState(): DemoState {
     audit: {
       maria: [],
       jozef: [
-        { id: "a-j3", at: "2026-10-16T09:12:00", actor: "pieter", text: "Pieter betaalde €236,00 aan Wit-Gele Kruis namens Jozef", amount: 236, kind: "payment" },
-        { id: "a-j2", at: "2026-10-03T18:40:00", actor: "pieter", text: "Pieter zette Jozef op de wachtlijst van WZC De Kastanjelaar", kind: "request" },
-        { id: "a-j1", at: "2026-05-11T14:05:00", actor: "jozef", text: "Jozef gaf Lieve de rol Meldingen", kind: "access" },
+        { id: "a-j3", at: "2026-10-16T09:12:00", actor: "pieter", text: "Pieter paid €236.00 to Wit-Gele Kruis for Jozef", amount: 236, kind: "payment" },
+        { id: "a-j2", at: "2026-10-03T18:40:00", actor: "pieter", text: "Pieter put Jozef on the waiting list at De Kastanjelaar", kind: "request" },
+        { id: "a-j1", at: "2026-05-11T14:05:00", actor: "jozef", text: "Jozef gave Lieve the Alerts role", kind: "access" },
       ],
     },
     requested: { maria: [], jozef: [] },
@@ -245,11 +245,11 @@ export const actions = {
         limits: { ...s.limits, [elder]: limit },
         audit: { ...s.audit, [elder]: [] },
       };
-      next = log(next, elder, { actor: elder, text: `${firstName(elder)} startte haar Mantel`, kind: "access" });
+      next = log(next, elder, { actor: elder, text: `${firstName(elder)} set up her Mantel`, kind: "access" });
       members.forEach((m) => {
         next = log(next, elder, {
           actor: elder,
-          text: `${firstName(elder)} gaf ${firstName(m.personId)} de rol ${roleLabel(m.role)}`,
+          text: `${firstName(elder)} gave ${firstName(m.personId)} the ${roleLabel(m.role)} role`,
           kind: "access",
         });
       });
@@ -271,7 +271,7 @@ export const actions = {
       };
       return log(next, elder, {
         actor: personId,
-        text: `${firstName(personId)} bevestigde zijn identiteit met itsme en sloot aan als gast`,
+        text: `${firstName(personId)} confirmed his identity with itsme and joined as a guest`,
         kind: "access",
       });
     });
@@ -284,7 +284,7 @@ export const actions = {
         ...s,
         circles: { ...s.circles, [elder]: s.circles[elder].map((m) => (m.personId === personId ? { ...m, role } : m)) },
       };
-      return log(next, elder, { actor: elder, text: `${firstName(elder)} wijzigde de rol van ${firstName(personId)} naar ${roleLabel(role)}`, kind: "access" });
+      return log(next, elder, { actor: elder, text: `${firstName(elder)} changed ${firstName(personId)}'s role to ${roleLabel(role)}`, kind: "access" });
     });
   },
   revoke(elder: ElderId, personId: PersonId) {
@@ -293,7 +293,7 @@ export const actions = {
         ...s,
         circles: { ...s.circles, [elder]: s.circles[elder].map((m) => (m.personId === personId ? { ...m, status: "revoked" } : m)) },
       };
-      return log(next, elder, { actor: elder, text: `${firstName(elder)} stopte de toegang van ${firstName(personId)}`, kind: "access" });
+      return log(next, elder, { actor: elder, text: `${firstName(elder)} removed ${firstName(personId)}'s access`, kind: "access" });
     });
   },
   restore(elder: ElderId, personId: PersonId) {
@@ -302,7 +302,7 @@ export const actions = {
         ...s,
         circles: { ...s.circles, [elder]: s.circles[elder].map((m) => (m.personId === personId ? { ...m, status: "active" } : m)) },
       };
-      return log(next, elder, { actor: elder, text: `${firstName(elder)} gaf ${firstName(personId)} opnieuw toegang`, kind: "access" });
+      return log(next, elder, { actor: elder, text: `${firstName(elder)} gave ${firstName(personId)} access again`, kind: "access" });
     });
   },
   toggleRule(elder: ElderId, ruleId: string) {
@@ -331,13 +331,13 @@ export const actions = {
       };
       return log(next, elder, {
         actor: by,
-        text: `${firstName(by)} vroeg ${partner} aan voor ${firstName(elder)}${withLoan ? ", met simulatie KBC Renovatielening" : ""}`,
+        text: `${firstName(by)} requested ${partner} for ${firstName(elder)}${withLoan ? ", with a KBC Renovation Loan simulation" : ""}`,
         kind: "request",
       });
     });
   },
   addToWaitlist(elder: ElderId, homeId: string, homeName: string, by: PersonId) {
-    set((s) => log({ ...s, waitlist: [...new Set([...s.waitlist, homeId])] }, elder, { actor: by, text: `${firstName(by)} vroeg een bezoek aan bij ${homeName}`, kind: "request" }));
+    set((s) => log({ ...s, waitlist: [...new Set([...s.waitlist, homeId])] }, elder, { actor: by, text: `${firstName(by)} asked ${homeName} for a visit`, kind: "request" }));
   },
 
   // Payments ---------------------------------------------------------------------
@@ -351,7 +351,7 @@ export const actions = {
       };
       return log(next, elder, {
         actor: by,
-        text: `${firstName(by)} betaalde ${bill.payee} namens ${firstName(elder)}`,
+        text: `${firstName(by)} paid ${bill.payee} for ${firstName(elder)}`,
         amount: bill.amount,
         kind: "payment",
       });
@@ -367,7 +367,7 @@ export const actions = {
       };
       return log(next, elder, {
         actor: by,
-        text: `${firstName(by)} vroeg ${firstName(elder)} om goedkeuring voor een betaling aan ${bill.payee}`,
+        text: `${firstName(by)} asked ${firstName(elder)} to approve a payment to ${bill.payee}`,
         amount: bill.amount,
         kind: "approval",
       });
@@ -388,8 +388,8 @@ export const actions = {
       return log(next, ap.elder, {
         actor: ap.elder,
         text: approve
-          ? `${firstName(ap.elder)} keurde de betaling aan ${bill.payee} goed. Betaald door ${firstName(ap.requestedBy)}.`
-          : `${firstName(ap.elder)} keurde de betaling aan ${bill.payee} niet goed`,
+          ? `${firstName(ap.elder)} approved the payment to ${bill.payee}. Paid by ${firstName(ap.requestedBy)}.`
+          : `${firstName(ap.elder)} declined the payment to ${bill.payee}`,
         amount: bill.amount,
         kind: approve ? "payment" : "approval",
       });
@@ -400,11 +400,11 @@ export const actions = {
   triggerFraud() {
     set((s) => {
       const recipients = s.rules.maria.find((r) => r.condition === FRAUD_RULE)?.notify ?? ["sarah", "ann"];
-      const names = recipients.map(firstName).join(" en ");
+      const names = recipients.map(firstName).join(" and ");
       const next: DemoState = { ...s, fraud: "alert", fraudAt: nowIso(), fraudAnswer: "none" };
       return log(next, "maria", {
         actor: "kbc",
-        text: `KBC hield een ongewone overschrijving tegen en verwittigde ${names}, volgens Maria's regel`,
+        text: `KBC put an unusual transfer on hold and alerted ${names}, as set in Maria's rule`,
         amount: FRAUD_TX.amount,
         kind: "alert",
       });
@@ -416,7 +416,7 @@ export const actions = {
       if (fraud === "resolved") {
         next = log(next, "maria", {
           actor: s.viewer,
-          text: `${firstName(s.viewer)} blokkeerde samen met KBC de verdachte overschrijving. Het geld bleef op Maria's rekening.`,
+          text: `${firstName(s.viewer)} blocked the suspicious transfer together with KBC. The money stayed in Maria's account.`,
           amount: FRAUD_TX.amount,
           kind: "alert",
         });
@@ -442,7 +442,11 @@ export const actions = {
   },
   /** Make sure Maria's Mantel exists with the standard circle (for skipped steps). */
   ensureMariaMantel() {
-    if (load().mantel.maria !== "active") actions.activateMantel("maria", MARIA_DEFAULT_PEOPLE, MARIA_DEFAULT_RULES, ELDERS.maria.limit);
+    const s = load();
+    // Also reset when the jury left Tom out: the later steps of path 1 need him.
+    if (s.mantel.maria !== "active" || !s.circles.maria.some((m) => m.personId === "tom")) {
+      actions.activateMantel("maria", MARIA_DEFAULT_PEOPLE, MARIA_DEFAULT_RULES, ELDERS.maria.limit);
+    }
   },
   reset() {
     set(() => initialState());
@@ -467,9 +471,9 @@ export const actions = {
 };
 
 export const MARIA_DEFAULT_PEOPLE: { personId: PersonId; relation: string; role: RoleId }[] = [
-  { personId: "sarah", relation: "Dochter", role: "handelen" },
-  { personId: "tom", relation: "Zoon", role: "inzage" },
-  { personId: "ann", relation: "Buurvrouw", role: "meldingen" },
+  { personId: "sarah", relation: "Daughter", role: "handelen" },
+  { personId: "tom", relation: "Son", role: "inzage" },
+  { personId: "ann", relation: "Neighbour", role: "meldingen" },
 ];
 
 export const MARIA_DEFAULT_RULES: Omit<Rule, "id">[] = [
@@ -479,13 +483,13 @@ export const MARIA_DEFAULT_RULES: Omit<Rule, "id">[] = [
 export const FRAUD_TX = {
   amount: 2450,
   iban: "LT72 3250 0912 8841 0077",
-  name: "Pakket Verzendservice",
-  channel: "KBC Mobile, nieuw toestel",
+  name: "Parcel Delivery Service",
+  channel: "KBC Mobile, on a new device",
   avg: 85,
 };
 
 export function roleLabel(role: RoleId) {
-  return role === "meldingen" ? "Meldingen" : role === "inzage" ? "Inzage" : "Handelen";
+  return role === "meldingen" ? "Alerts" : role === "inzage" ? "View" : "Pay";
 }
 
 export { fullName };

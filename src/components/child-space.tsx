@@ -8,10 +8,10 @@ import { actions, useDemo } from "@/lib/store";
 import { Card, SectionTitle, cx } from "@/components/ui";
 
 export const CHILD_CHECKLIST = [
-  { id: "c-talk", title: "Praat met mama over haar wensen", detail: "Wat vindt zij belangrijk? Waar wil ze hulp bij?" },
-  { id: "c-erkenning", title: "Laat uzelf erkennen als mantelzorger", detail: "Via uw ziekenfonds. Dat opent rechten en premies." },
-  { id: "c-premie", title: "Vraag de mantelzorgpremie aan", detail: "Bij Stad Gent, voor wie intensief helpt." },
-  { id: "c-verlof", title: "Bekijk zorgverlof bij uw werkgever", detail: "Thematisch verlof of verlof voor mantelzorg." },
+  { id: "c-talk", title: "Talk to Mum about what she wants", detail: "What matters to her? What would she like help with?" },
+  { id: "c-erkenning", title: "Apply for official carer status", detail: "Through your health insurance fund. It gives you access to certain rights and allowances." },
+  { id: "c-premie", title: "Apply for the carer's allowance", detail: "From the City of Ghent, if you care for someone regularly." },
+  { id: "c-verlof", title: "Ask your employer about carer's leave", detail: "You may be entitled to leave to care for a family member." },
 ];
 
 const SPENT = 64;
@@ -22,7 +22,7 @@ export function ChildSpace() {
 
   return (
     <div>
-      <SectionTitle action={<span className="text-xs font-semibold text-muted">{done}/{CHILD_CHECKLIST.length}</span>}>Uw mantelzorg-checklist</SectionTitle>
+      <SectionTitle action={<span className="text-xs font-semibold text-muted">{done}/{CHILD_CHECKLIST.length}</span>}>Your carer checklist</SectionTitle>
       <Card className="divide-y divide-line p-1.5">
         {CHILD_CHECKLIST.map((c) => {
           const checked = childSpace.checklist.includes(c.id);
@@ -40,20 +40,20 @@ export function ChildSpace() {
         })}
       </Card>
 
-      <SectionTitle>Uw eigen mantelzorgbudget</SectionTitle>
+      <SectionTitle>Your own carer budget</SectionTitle>
       <Card className="space-y-3">
         <div className="flex items-start gap-3">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-calm-soft text-calm">
             <PiggyBank className="size-5" aria-hidden />
           </span>
           <div>
-            <p className="text-sm font-semibold text-ink">Spaarpotje &lsquo;Voor mama&rsquo;</p>
-            <p className="text-xs text-muted">Op uw eigen rekening, voor benzine, boodschappen of een cadeautje. Los van Maria&rsquo;s geld.</p>
+            <p className="text-sm font-semibold text-ink">Savings pot &lsquo;For Mum&rsquo;</p>
+            <p className="text-xs text-muted">In your own account, for petrol, shopping or a small gift. Separate from Maria&rsquo;s money.</p>
           </div>
         </div>
         <div>
           <div className="mb-1 flex justify-between text-xs text-muted">
-            <span>Deze maand: {euro0(SPENT)}</span>
+            <span>This month: {euro0(SPENT)}</span>
             <span>Budget: {euro0(childSpace.budget)}</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-canvas">
@@ -77,7 +77,7 @@ export function ChildSpace() {
         </div>
       </Card>
 
-      <SectionTitle action={<Link href="/app/diensten" className="text-xs font-semibold text-brand">Alles bekijken</Link>}>Hulp in de buurt van Gent</SectionTitle>
+      <SectionTitle action={<Link href="/app/diensten" className="text-xs font-semibold text-brand">View all</Link>}>Help near Ghent</SectionTitle>
       <Card className="divide-y divide-line p-1.5">
         {SERVICES.filter((x) => ["wgk", "familiehulp", "alarm"].includes(x.id)).map((x) => (
           <Link key={x.id} href="/app/diensten" className="flex items-center gap-3 p-2.5">
@@ -90,7 +90,7 @@ export function ChildSpace() {
           </Link>
         ))}
       </Card>
-      <p className="mt-2 px-1 text-xs text-muted">Algemene info voor Gent. Er worden geen gegevens van Maria gebruikt.</p>
+      <p className="mt-2 px-1 text-xs text-muted">General information for Ghent. None of Maria&rsquo;s data is used.</p>
     </div>
   );
 }

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Check, Landmark, Send, ShieldCheck } from "lucide-react";
 import type { Service } from "@/lib/data";
-import { ELDERS, fullName } from "@/lib/data";
-import { euro } from "@/lib/format";
+import { ELDERS, fullName, poss } from "@/lib/data";
+import { euro, euro0 } from "@/lib/format";
 import { actions } from "@/lib/store";
 import { useCurrent } from "@/lib/use-current";
 import { Badge, Button, Card, Sheet, SuccessMark, Toggle, WhyThis, cx, toast, wait } from "@/components/ui";
@@ -24,7 +24,7 @@ export function ServiceCard({ service, recommended }: { service: Service; recomm
           <p className="text-xs font-semibold text-muted">{service.partner}</p>
           <h3 className="font-bold leading-snug text-ink">{service.name}</h3>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
-            {recommended && connected && <Badge tone="brand">aanbevolen voor {elderPerson.firstName}</Badge>}
+            {recommended && connected && <Badge tone="brand">recommended for {elderPerson.firstName}</Badge>}
             <Badge>{service.regions.join(" · ")}</Badge>
           </div>
         </div>
@@ -32,18 +32,18 @@ export function ServiceCard({ service, recommended }: { service: Service; recomm
       <p className="text-sm text-ink">{service.description}</p>
 
       {connected && why ? (
-        <WhyThis label="Waarom aanbevolen?">
+        <WhyThis label="Why is this recommended?">
           <p>{why}</p>
-          <p className="mt-1.5 text-xs text-muted">Op basis van signalen die {elderPerson.firstName} met de Mantel deelt. {service.partner} betaalt niet voor deze plek in de lijst.</p>
+          <p className="mt-1.5 text-xs text-muted">Based on insights {elderPerson.firstName} shares through the Mantel. {service.partner} doesn&rsquo;t pay for this place in the list.</p>
         </WhyThis>
       ) : (
         <WhyThis>
-          <p>{service.generic} Getoond omdat de dienst actief is in {ELDERS[elder].region}.</p>
+          <p>{service.generic} Shown because this service is available in {ELDERS[elder].region}.</p>
         </WhyThis>
       )}
 
       <div className="rounded-2xl bg-canvas p-3 text-sm">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted">Prijsindicatie</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted">Price indication</p>
         <p className="mt-0.5 text-ink">{service.price}</p>
       </div>
 
@@ -59,11 +59,11 @@ export function ServiceCard({ service, recommended }: { service: Service; recomm
 
       {requested ? (
         <div className="flex items-center gap-2 rounded-full bg-calm-soft px-4 py-2.5 text-sm font-semibold text-calm">
-          <Check className="size-4" aria-hidden /> Aangevraagd{requested.withLoan ? " · met renovatielening-simulatie" : ""}
+          <Check className="size-4" aria-hidden /> Requested{requested.withLoan ? " · with loan simulation" : ""}
         </div>
       ) : (
         <Button full variant="primary" onClick={() => setOpen(true)}>
-          {connected ? service.cta : "Info aanvragen"}
+          {connected ? service.cta : "Request info"}
         </Button>
       )}
 
@@ -90,7 +90,7 @@ function RequestSheet({
   viewer: ReturnType<typeof useCurrent>["viewer"];
 }) {
   const [phase, setPhase] = useState<"form" | "sending" | "done">("form");
-  const [moment, setMoment] = useState("Deze week");
+  const [moment, setMoment] = useState("This week");
   const [loan, setLoan] = useState(true);
 
   const close = () => {
@@ -103,16 +103,16 @@ function RequestSheet({
       {phase === "done" ? (
         <div className="space-y-4 py-4 text-center">
           <SuccessMark />
-          <h3 className="text-xl font-bold text-ink">Aangevraagd</h3>
+          <h3 className="text-xl font-bold text-ink">Requested</h3>
           <p className="text-sm text-ink">{service.confirm}</p>
-          {connected && <p className="text-sm text-muted">{elderName} krijgt hiervan een melding. Het staat ook in het logboek.</p>}
+          {connected && <p className="text-sm text-muted">{elderName} gets a notification about it. It&rsquo;s also in the activity log.</p>}
           {service.loan && loan && (
             <p className="rounded-2xl bg-brand-mist p-3 text-sm text-navy">
-              De simulatie van de KBC Renovatielening staat klaar voor {elderName}. Een lening op haar naam vraagt altijd haar eigen handtekening.
+              The KBC Renovation Loan simulation is ready for {elderName} to look at. A loan in {poss(elder)} name always needs {poss(elder)} own signature.
             </p>
           )}
           <Button full onClick={close}>
-            Klaar
+            Done
           </Button>
         </div>
       ) : (
@@ -121,19 +121,19 @@ function RequestSheet({
 
           <div className="space-y-1 rounded-2xl bg-canvas p-3 text-sm">
             <p>
-              <span className="text-muted">Voor: </span>
-              {connected ? `${fullName(elder)}, ${ELDERS[elder].address}` : "Uzelf, als info"}
+              <span className="text-muted">For: </span>
+              {connected ? `${fullName(elder)}, ${ELDERS[elder].address}` : "Yourself, for information"}
             </p>
             <p>
-              <span className="text-muted">Contactpersoon: </span>
-              {fullName(viewer)} (u)
+              <span className="text-muted">Contact person: </span>
+              {fullName(viewer)} (you)
             </p>
           </div>
 
           <div>
-            <p className="mb-2 text-sm font-semibold">Wanneer past het?</p>
+            <p className="mb-2 text-sm font-semibold">When suits you?</p>
             <div className="flex flex-wrap gap-2">
-              {["Zo snel mogelijk", "Deze week", "Volgende week"].map((m) => (
+              {["As soon as possible", "This week", "Next week"].map((m) => (
                 <button
                   key={m}
                   type="button"
@@ -150,26 +150,26 @@ function RequestSheet({
             <div className="space-y-3 rounded-2xl p-3 ring-1 ring-inset ring-brand/30">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-bold text-navy">Combineer met KBC Renovatielening</p>
-                  <p className="text-xs text-muted">Simulatie, zonder verbintenis</p>
+                  <p className="text-sm font-bold text-navy">Add a KBC Renovation Loan</p>
+                  <p className="text-xs text-muted">Simulation, no commitment</p>
                 </div>
-                <Toggle checked={loan} onChange={setLoan} label="Renovatielening simuleren" />
+                <Toggle checked={loan} onChange={setLoan} label="Simulate a KBC Renovation Loan" />
               </div>
               {loan && (
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="rounded-xl bg-brand-mist p-2">
-                    <p className="text-[11px] text-muted">Bedrag</p>
-                    <p className="text-sm font-bold tabular-nums">{euro(service.loan.amount).replace(",00", "")}</p>
+                    <p className="text-[11px] text-muted">Amount</p>
+                    <p className="text-sm font-bold tabular-nums">{euro0(service.loan.amount)}</p>
                   </div>
                   <div className="rounded-xl bg-brand-mist p-2">
-                    <p className="text-[11px] text-muted">Looptijd</p>
-                    <p className="text-sm font-bold">{service.loan.months / 12} jaar</p>
+                    <p className="text-[11px] text-muted">Term</p>
+                    <p className="text-sm font-bold">{service.loan.months / 12} years</p>
                   </div>
                   <div className="rounded-xl bg-brand-mist p-2">
-                    <p className="text-[11px] text-muted">Per maand</p>
+                    <p className="text-[11px] text-muted">Per month</p>
                     <p className="text-sm font-bold tabular-nums">≈ {euro(service.loan.monthly)}</p>
                   </div>
-                  <p className="col-span-3 text-[11px] text-muted">{service.loan.rate}. Na aftrek van de aanpassingspremie kan het bedrag lager liggen.</p>
+                  <p className="col-span-3 text-[11px] text-muted">{service.loan.rate}. An adaptation grant can lower the amount. Only {elderName} can sign the loan. Remember, borrowing money also costs money.</p>
                 </div>
               )}
             </div>
@@ -178,8 +178,8 @@ function RequestSheet({
           <div className="flex items-start gap-2.5 rounded-2xl bg-calm-soft p-3 text-sm">
             <ShieldCheck className="mt-0.5 size-4 shrink-0 text-calm" aria-hidden />
             <p className="text-ink">
-              <span className="font-semibold">Wat delen we met {service.partner}?</span> {connected ? service.shares.replace("de ouder", elderName) : "enkel uw eigen contactgegevens"}. Geen saldo&rsquo;s of
-              andere financiële gegevens.
+              <span className="font-semibold">What do we share with {service.partner}?</span> {connected ? service.shares.replace("the parent's", `${elderName}'s`) : "only your own contact details"}. No balances or other
+              financial information.
             </p>
           </div>
 
@@ -192,10 +192,10 @@ function RequestSheet({
               await wait(1300);
               if (connected) actions.requestService(elder, service.id, service.partner, viewer, !!service.loan && loan);
               setPhase("done");
-              if (!connected) toast("Info aangevraagd.");
+              if (!connected) toast("Info requested.");
             }}
           >
-            <Send className="size-4" aria-hidden /> {connected ? service.cta : "Info aanvragen"}
+            <Send className="size-4" aria-hidden /> {connected ? service.cta : "Request info"}
           </Button>
         </div>
       )}

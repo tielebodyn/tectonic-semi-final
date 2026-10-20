@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { BadgeCheck, Fingerprint, KeyRound, Mail, UserPlus } from "lucide-react";
-import { PEOPLE, ROLES, fullName, poss } from "@/lib/data";
+import { PEOPLE, ROLES, fullName, poss, subj } from "@/lib/data";
 import { longDate } from "@/lib/format";
 import { useCurrent } from "@/lib/use-current";
 import type { RoleId } from "@/lib/types";
@@ -15,31 +15,31 @@ export default function CirclePage() {
   const name = elderPerson.firstName;
 
   if (!link || link.state !== "active") {
-    return <p className="py-10 text-center text-sm text-muted">De kring wordt zichtbaar zodra {name} uw uitnodiging aanvaardt.</p>;
+    return <p className="py-10 text-center text-sm text-muted">You&rsquo;ll see the circle as soon as {name} accepts your invitation.</p>;
   }
 
   const members = s.circles[elder].filter((m) => m.status !== "revoked");
 
   return (
     <div>
-      <h1 className="px-1 text-2xl font-bold tracking-tight">De kring van {name}</h1>
-      <p className="mt-1 px-1 text-sm text-muted">Iedereen die {name} vertrouwt, en wat ze mogen.</p>
+      <h1 className="px-1 text-2xl font-bold tracking-tight">{name}&rsquo;s circle</h1>
+      <p className="mt-1 px-1 text-sm text-muted">The people who help {name}, and what each of them can do.</p>
 
       <Card className="mt-4 flex items-center gap-3 bg-brand-mist ring-brand/20">
         <Avatar id={elder} size="lg" />
         <div className="min-w-0 flex-1">
           <p className="font-bold text-ink">{fullName(elder)}</p>
-          <p className="text-xs text-muted">Eigenaar van de Mantel</p>
+          <p className="text-xs text-muted">Owner of the Mantel</p>
         </div>
         <Badge tone="navy">
-          <KeyRound className="size-3" aria-hidden /> houdt de sleutel
+          <KeyRound className="size-3" aria-hidden /> account holder
         </Badge>
       </Card>
       <p className="mt-2 px-1 text-xs text-muted">
-        {name} kiest wie erbij hoort en welke rol. {name} kan een rol aanpassen of toegang stoppen wanneer {poss(elder) === "haar" ? "ze" : "hij"} wil.
+        {name} chooses who&rsquo;s in the circle and what role they get. {name} can change a role or remove access whenever {subj(elder)} likes.
       </p>
 
-      <SectionTitle>{members.length} vertrouwenspersonen</SectionTitle>
+      <SectionTitle>{members.length} trusted {members.length === 1 ? "person" : "people"}</SectionTitle>
       <div className="space-y-2.5">
         {members.map((m) => {
           const p = PEOPLE[m.personId];
@@ -49,26 +49,26 @@ export default function CirclePage() {
                 <Avatar id={m.personId} size="lg" />
                 <div className="min-w-0 flex-1">
                   <p className="font-bold text-ink">
-                    {p.firstName} {p.lastName} {m.personId === viewer && <span className="font-medium text-muted">(u)</span>}
+                    {p.firstName} {p.lastName} {m.personId === viewer && <span className="font-medium text-muted">(you)</span>}
                   </p>
                   <p className="text-sm text-muted">{m.relation}</p>
                 </div>
                 <RoleBadge role={m.role} />
               </div>
               <p className="text-sm text-ink">
-                {m.role === "handelen" ? `Kan rekeningen betalen tot €${limit} per betaling. Daarboven beslist ${name}.` : ROLES[m.role].short}
+                {m.role === "handelen" ? `Can pay bills up to €${limit} per payment. Above that, ${name} decides.` : ROLES[m.role].short}
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {m.guest ? (
                   <Badge>
-                    <Fingerprint className="size-3" aria-hidden /> gast{m.status === "active" ? " via itsme" : ""}
+                    <Fingerprint className="size-3" aria-hidden /> guest{m.status === "active" ? " via itsme" : ""}
                   </Badge>
                 ) : (
                   <Badge tone="brand">
-                    <BadgeCheck className="size-3" aria-hidden /> KBC-klant
+                    <BadgeCheck className="size-3" aria-hidden /> KBC customer
                   </Badge>
                 )}
-                {m.status === "invited" ? <Badge tone="attention">uitgenodigd</Badge> : <Badge>sinds {longDate(m.since)}</Badge>}
+                {m.status === "invited" ? <Badge tone="attention">invited</Badge> : <Badge>since {longDate(m.since)}</Badge>}
               </div>
             </Card>
           );
@@ -76,13 +76,13 @@ export default function CirclePage() {
       </div>
 
       <Card className="mt-4 space-y-3">
-        <p className="text-sm text-ink">Wilt u iemand toevoegen of een rol wijzigen? Dat kan enkel {name}. U kan het wel voorstellen.</p>
+        <p className="text-sm text-ink">Want to add someone or change a role? Only {name} can do that, but you can suggest it.</p>
         <Button size="sm" variant="soft" onClick={() => setSuggest(true)}>
-          <UserPlus className="size-4" aria-hidden /> Stel iemand voor
+          <UserPlus className="size-4" aria-hidden /> Suggest someone
         </Button>
       </Card>
 
-      <SectionTitle>De drie rollen</SectionTitle>
+      <SectionTitle>The three roles</SectionTitle>
       <div className="space-y-2.5">
         {(["meldingen", "inzage", "handelen"] as RoleId[]).map((r) => (
           <Card key={r}>
@@ -91,21 +91,21 @@ export default function CirclePage() {
         ))}
       </div>
 
-      <Sheet open={suggest} onClose={() => setSuggest(false)} title={`Iemand voorstellen aan ${name}`}>
+      <Sheet open={suggest} onClose={() => setSuggest(false)} title={`Suggest someone to ${name}`}>
         <div className="space-y-4">
           <p className="text-sm text-muted">
-            {name} krijgt uw voorstel in {poss(elder)} eigen app en beslist zelf. Er wordt niets gedeeld tot {name} ja zegt.
+            {name} gets your suggestion in {poss(elder)} own app and decides. Nothing is shared until {name} says yes.
           </p>
           <label className="block">
-            <span className="text-sm font-semibold">Naam</span>
+            <span className="text-sm font-semibold">Name</span>
             <input defaultValue="Luc Peeters" className="mt-1 h-11 w-full rounded-xl px-3 ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand" />
           </label>
           <label className="block">
-            <span className="text-sm font-semibold">Relatie</span>
-            <input defaultValue={`Broer van ${name}`} className="mt-1 h-11 w-full rounded-xl px-3 ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand" />
+            <span className="text-sm font-semibold">Relationship</span>
+            <input defaultValue={`${name}'s brother`} className="mt-1 h-11 w-full rounded-xl px-3 ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand" />
           </label>
           <div>
-            <span className="text-sm font-semibold">Voorgestelde rol</span>
+            <span className="text-sm font-semibold">Suggested role</span>
             <div className="mt-2">
               <RoleBadge role="meldingen" />
             </div>
@@ -118,10 +118,10 @@ export default function CirclePage() {
               await wait(900);
               setSending(false);
               setSuggest(false);
-              toast(`Voorstel verstuurd naar ${name}.`);
+              toast(`Suggestion sent to ${name}.`);
             }}
           >
-            <Mail className="size-4" aria-hidden /> Verstuur voorstel
+            <Mail className="size-4" aria-hidden /> Send suggestion
           </Button>
         </div>
       </Sheet>

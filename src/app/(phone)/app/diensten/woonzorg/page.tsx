@@ -10,12 +10,12 @@ import { useCurrent } from "@/lib/use-current";
 import type { Region } from "@/lib/types";
 import { Badge, Button, Card, Sheet, SuccessMark, cx, wait } from "@/components/ui";
 
-const TYPES: CareType[] = ["Residentieel", "Kortverblijf", "Dagverzorging", "Assistentiewoning", "Dementiezorg"];
+const TYPES: CareType[] = ["Residential", "Short stay", "Day care", "Assisted living", "Dementia care"];
 const BUDGETS = [
-  { label: "Elk budget", max: Infinity },
-  { label: "tot €70/dag", max: 70 },
-  { label: "tot €80/dag", max: 80 },
-  { label: "tot €90/dag", max: 90 },
+  { label: "Any budget", max: Infinity },
+  { label: "up to €70/day", max: 70 },
+  { label: "up to €80/day", max: 80 },
+  { label: "up to €90/day", max: 90 },
 ];
 
 export default function CareHomeFinderPage() {
@@ -33,14 +33,14 @@ export default function CareHomeFinderPage() {
   return (
     <div>
       <Link href="/app/diensten" className="inline-flex items-center gap-1 px-1 text-sm font-semibold text-navy">
-        <ArrowLeft className="size-4" aria-hidden /> Diensten
+        <ArrowLeft className="size-4" aria-hidden /> Services
       </Link>
-      <h1 className="mt-2 px-1 text-2xl font-bold tracking-tight">Woonzorgcentra</h1>
-      <p className="mt-1 px-1 text-sm text-muted">Rustig vergelijken, op het tempo van {elderPerson.firstName}.</p>
+      <h1 className="mt-2 px-1 text-2xl font-bold tracking-tight">Care homes</h1>
+      <p className="mt-1 px-1 text-sm text-muted">Compare care homes and plan a visit, at {elderPerson.firstName}&rsquo;s own pace.</p>
 
       <Card className="mt-4 space-y-3">
-        <FilterRow label="Regio">
-          {(["Aalst", "Gent"] as Region[]).map((r) => (
+        <FilterRow label="Region">
+          {(["Aalst", "Ghent"] as Region[]).map((r) => (
             <Chip key={r} active={region === r} onClick={() => setRegion(r)}>
               {r}
             </Chip>
@@ -53,9 +53,9 @@ export default function CareHomeFinderPage() {
             </Chip>
           ))}
         </FilterRow>
-        <FilterRow label="Soort zorg">
+        <FilterRow label="Type of care">
           <Chip active={type === null} onClick={() => setType(null)}>
-            Alles
+            All
           </Chip>
           {TYPES.map((t) => (
             <Chip key={t} active={type === t} onClick={() => setType(t)}>
@@ -66,7 +66,7 @@ export default function CareHomeFinderPage() {
       </Card>
 
       <p className="mb-2 mt-5 px-1 text-[13px] font-semibold uppercase tracking-[0.08em] text-muted">
-        {list.length} {list.length === 1 ? "resultaat" : "resultaten"}
+        {list.length} {list.length === 1 ? "result" : "results"}
       </p>
       <div className="space-y-2.5">
         {list.map((h) => (
@@ -76,12 +76,12 @@ export default function CareHomeFinderPage() {
                 <div>
                   <p className="font-bold text-ink">{h.name}</p>
                   <p className="flex items-center gap-1 text-sm text-muted">
-                    <MapPin className="size-3.5" aria-hidden /> {h.city} · {h.distanceKm.toLocaleString("nl-BE")} km
+                    <MapPin className="size-3.5" aria-hidden /> {h.city} · {h.distanceKm.toLocaleString("en-GB")} km
                   </p>
                 </div>
                 <p className="text-right text-sm font-bold tabular-nums text-ink">
                   €{h.priceMin}–{h.priceMax}
-                  <span className="block text-[11px] font-medium text-muted">per dag</span>
+                  <span className="block text-[11px] font-medium text-muted">per day</span>
                 </p>
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -94,7 +94,7 @@ export default function CareHomeFinderPage() {
             </Card>
           </button>
         ))}
-        {list.length === 0 && <p className="py-8 text-center text-sm text-muted">Geen centra voor deze filters. Probeer een ruimer budget.</p>}
+        {list.length === 0 && <p className="py-8 text-center text-sm text-muted">No care homes match these filters. Try a higher budget.</p>}
       </div>
 
       <CareHomeSheet home={selected} onClose={() => setSelected(null)} />
@@ -113,7 +113,7 @@ function CareHomeSheet({ home, onClose }: { home: CareHome | null; onClose: () =
 
   const monthly = Math.round(((home.priceMin + home.priceMax) / 2) * 30);
   const income = ASSETS[elder].monthlyIncome;
-  const savings = ASSETS[elder].groups.find((g) => g.title === "Rekeningen")!.items.reduce((sum, i) => sum + (i.value ?? 0), 0);
+  const savings = ASSETS[elder].groups.find((g) => g.title === "Accounts")!.items.reduce((sum, i) => sum + (i.value ?? 0), 0);
   const gap = Math.max(0, monthly - income);
   const years = gap > 0 ? Math.floor(savings / gap / 12) : null;
   const onList = s.waitlist.includes(home.id);
@@ -123,16 +123,16 @@ function CareHomeSheet({ home, onClose }: { home: CareHome | null; onClose: () =
       {phase === "done" ? (
         <div className="space-y-4 py-4 text-center">
           <SuccessMark />
-          <h3 className="text-xl font-bold">Bezoek aangevraagd</h3>
-          <p className="text-sm text-ink">{home.name} neemt contact op om een rondleiding te plannen. {elderPerson.firstName} krijgt hiervan een melding.</p>
+          <h3 className="text-xl font-bold">Visit requested</h3>
+          <p className="text-sm text-ink">{home.name} will contact you to plan a tour. {elderPerson.firstName} gets a notification about it too.</p>
           <Button full onClick={close}>
-            Klaar
+            Done
           </Button>
         </div>
       ) : (
         <div className="space-y-4">
           <p className="flex items-center gap-1 text-sm text-muted">
-            <MapPin className="size-3.5" aria-hidden /> {home.city} · {home.distanceKm.toLocaleString("nl-BE")} km van {elderPerson.firstName}
+            <MapPin className="size-3.5" aria-hidden /> {home.city} · {home.distanceKm.toLocaleString("en-GB")} km from {elderPerson.firstName}
           </p>
           <p className="text-sm text-ink">{home.description}</p>
           <div className="flex flex-wrap gap-1.5">
@@ -151,27 +151,27 @@ function CareHomeSheet({ home, onClose }: { home: CareHome | null; onClose: () =
 
           <div className="rounded-2xl bg-canvas p-3 text-sm">
             <p className="font-semibold text-ink">
-              Dagprijs €{home.priceMin} – €{home.priceMax}
+              Daily rate €{home.priceMin} – €{home.priceMax}
             </p>
-            <p className="text-muted">ca. {euro0(monthly)} per maand, supplementen (kapper, was) niet inbegrepen</p>
+            <p className="text-muted">About {euro0(monthly)} a month, extras (hairdresser, laundry) not included</p>
           </div>
 
           {canView && (
             <div className="space-y-2 rounded-2xl bg-brand-mist p-3 text-sm ring-1 ring-inset ring-brand/15">
               <p className="flex items-center gap-1.5 font-semibold text-navy">
-                <Wallet className="size-4" aria-hidden /> Past dit bij het budget van {elderPerson.firstName}?
+                <Wallet className="size-4" aria-hidden /> Does this fit {elderPerson.firstName}&rsquo;s budget?
               </p>
               <p className="text-ink">
-                Pensioen: {euro0(income)} per maand.{" "}
+                Pension: {euro0(income)} a month.{" "}
                 {gap > 0 ? (
                   <>
-                    Er blijft ca. <strong>{euro0(gap)}</strong> per maand bij te passen. Met het spaargeld lukt dat ongeveer <strong>{years} jaar</strong>.
+                    That leaves about <strong>{euro0(gap)}</strong> a month to top up. Savings would cover that for about <strong>{years} {years === 1 ? "year" : "years"}</strong>.
                   </>
                 ) : (
-                  <>Het pensioen dekt de dagprijs.</>
+                  <>The pension covers the daily rate.</>
                 )}
               </p>
-              <p className="text-xs text-muted">Indicatief, op basis van wat {elderPerson.firstName} deelt via de Mantel.</p>
+              <p className="text-xs text-muted">Indicative, based on what {elderPerson.firstName} shares through the Mantel.</p>
             </div>
           )}
 
@@ -186,7 +186,7 @@ function CareHomeSheet({ home, onClose }: { home: CareHome | null; onClose: () =
               setPhase("done");
             }}
           >
-            <CalendarCheck className="size-4" aria-hidden /> {onList ? "Nog een bezoek plannen" : "Bezoek plannen"}
+            <CalendarCheck className="size-4" aria-hidden /> {onList ? "Plan another visit" : "Plan a visit"}
           </Button>
         </div>
       )}

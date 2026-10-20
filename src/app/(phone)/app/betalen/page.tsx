@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowDown, ArrowLeft, BellRing, Check, ChevronRight, Clock, Fingerprint, Info, ShieldCheck } from "lucide-react";
-import { ASSETS, PEOPLE, fullName } from "@/lib/data";
+import { ASSETS, PEOPLE, fullName, subj } from "@/lib/data";
 import { euro, shortDate } from "@/lib/format";
 import { actions } from "@/lib/store";
 import { useCurrent } from "@/lib/use-current";
@@ -34,11 +34,11 @@ function PayFlow() {
     const actor = s.circles[elder].find((m) => m.role === "handelen" && m.status === "active");
     return (
       <LockedNotice
-        title="Betalen kan niet met uw rol"
-        body={`Alleen wie de rol Handelen heeft, kan betalen namens ${name}. ${name} koos dit zelf.${actor ? ` Voor ${name} is dat ${PEOPLE[actor.personId].firstName}.` : ""}`}
+        title="Your role doesn't include paying"
+        body={`Only someone with the Pay role can pay bills for ${name}. ${name} chooses who has this role.${actor ? ` For ${name}, that's ${PEOPLE[actor.personId].firstName}.` : ""}`}
       >
         <ButtonLink href="/app" variant="secondary" size="sm">
-          Terug naar overzicht
+          Back to Home
         </ButtonLink>
       </LockedNotice>
     );
@@ -53,18 +53,18 @@ function PayFlow() {
     const other = bills.filter((b) => b.status !== "open");
     return (
       <div>
-        <h1 className="px-1 text-2xl font-bold tracking-tight">Betalen namens {name}</h1>
+        <h1 className="px-1 text-2xl font-bold tracking-tight">Pay bills for {name}</h1>
         <Card className="mt-4 flex items-start gap-3 bg-brand-mist p-3.5 ring-brand/15">
           <Info className="mt-0.5 size-4 shrink-0 text-navy" aria-hidden />
           <p className="text-sm text-ink">
-            {name} gaf u <strong>Handelen</strong> tot <strong>€{limit} per betaling</strong>. Daarboven vraagt u eerst haar goedkeuring. {name} krijgt van elke betaling een
-            melding.
+            {name} gave you the <strong>Pay</strong> role, up to <strong>€{limit} per payment</strong>. Up to €{limit}, you pay yourself. Above that, {name} approves first. {name} is
+            notified of every payment.
           </p>
         </Card>
 
-        <SectionTitle>Te betalen</SectionTitle>
+        <SectionTitle>Bills to pay</SectionTitle>
         <div className="space-y-2">
-          {open.length === 0 && <Card className="text-sm text-muted">Alles is betaald. Mooi zo.</Card>}
+          {open.length === 0 && <Card className="text-sm text-muted">All bills are paid.</Card>}
           {open.map((b) => (
             <button
               key={b.id}
@@ -79,12 +79,16 @@ function PayFlow() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold text-ink">{b.payee}</p>
                   <p className="text-xs text-muted">
-                    {b.description} · vervalt {shortDate(b.due)}
+                    {b.description} · due {shortDate(b.due)}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="font-bold tabular-nums text-ink">{euro(b.amount)}</p>
-                  {b.amount > limit && <p className="text-[11px] font-semibold text-attention">boven limiet</p>}
+                  {b.amount > limit ? (
+                    <p className="text-[11px] font-semibold text-attention">Above limit · {name} approves</p>
+                  ) : (
+                    <p className="text-[11px] font-semibold text-calm">Within limit</p>
+                  )}
                 </div>
                 <ChevronRight className="size-4 text-faint" aria-hidden />
               </Card>
@@ -94,7 +98,7 @@ function PayFlow() {
 
         {other.length > 0 && (
           <>
-            <SectionTitle>Afgehandeld</SectionTitle>
+            <SectionTitle>Done</SectionTitle>
             <Card className="divide-y divide-line p-1.5">
               {other.map((b) => (
                 <div key={b.id} className="flex items-center gap-3 p-2.5">
@@ -113,7 +117,7 @@ function PayFlow() {
         )}
 
         <Link href="/app/logboek" className="mt-5 flex items-center justify-center gap-1 text-sm font-semibold text-navy">
-          Bekijk het logboek <ChevronRight className="size-4" aria-hidden />
+          View the activity log <ChevronRight className="size-4" aria-hidden />
         </Link>
       </div>
     );
@@ -129,15 +133,15 @@ function PayFlow() {
             <Clock className="size-11" aria-hidden />
           </span>
         )}
-        <h1 className="mt-5 text-2xl font-bold">{phase === "done" ? "Betaald namens " + name : `${name} kreeg uw vraag`}</h1>
+        <h1 className="mt-5 text-2xl font-bold">{phase === "done" ? `Paid for ${name}` : `Request sent to ${name}`}</h1>
         <p className="mx-auto mt-2 max-w-xs text-sm text-muted">
           {phase === "done"
-            ? `${euro(bill.amount)} aan ${bill.payee}. ${name} kreeg hiervan meteen een melding.`
-            : `${euro(bill.amount)} is meer dan de limiet van €${limit}. ${name} beslist zelf, in haar eigen app.`}
+            ? `${euro(bill.amount)} to ${bill.payee}, from ${name}'s current account. ${name} has been notified.`
+            : `${euro(bill.amount)} is above the €${limit} limit, so ${name} decides. ${subj(elder) === "she" ? "She" : "He"} gets the request in KBC Mobile. Once ${subj(elder)} approves, the bill is paid.`}
         </p>
 
         <div className="mt-6 text-left">
-          <SectionTitle action={<Link href="/app/logboek" className="text-xs font-semibold text-brand">Volledig logboek</Link>}>Logboek</SectionTitle>
+          <SectionTitle action={<Link href="/app/logboek" className="text-xs font-semibold text-brand">See all</Link>}>Activity log</SectionTitle>
           <Card className="p-2">
             <AuditLog entries={s.audit[elder]} limit={3} />
           </Card>
@@ -151,7 +155,7 @@ function PayFlow() {
             setPhase("list");
           }}
         >
-          Nog een factuur betalen
+          Pay another bill
         </Button>
       </div>
     );
@@ -160,29 +164,29 @@ function PayFlow() {
   return (
     <div>
       <button type="button" onClick={() => setPhase("list")} className="inline-flex items-center gap-1 px-1 text-sm font-semibold text-navy">
-        <ArrowLeft className="size-4" aria-hidden /> Facturen
+        <ArrowLeft className="size-4" aria-hidden /> Bills
       </button>
 
       <div className="mt-3 flex items-center gap-3 rounded-[var(--radius-card)] bg-navy p-4 text-white">
         <Avatar id={elder} size="lg" ring />
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-white/60">U betaalt namens</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-white/60">You&rsquo;re paying for</p>
           <p className="text-lg font-bold">{fullName(elder)}</p>
         </div>
       </div>
 
       <Card className="mt-3 space-y-3">
         <div>
-          <p className="text-xs font-medium text-muted">Van de rekening van {name}</p>
+          <p className="text-xs font-medium text-muted">From {name}&rsquo;s account</p>
           <p className="font-semibold text-ink">{current.name}</p>
           <p className="text-xs text-muted">{current.detail}</p>
         </div>
         <ArrowDown className="size-4 text-faint" aria-hidden />
         <div>
-          <p className="text-xs font-medium text-muted">Naar</p>
+          <p className="text-xs font-medium text-muted">To</p>
           <p className="font-semibold text-ink">{bill.payee}</p>
           <p className="text-xs text-muted">{bill.iban}</p>
-          <p className="mt-1 text-xs text-muted">Mededeling: {bill.reference}</p>
+          <p className="mt-1 text-xs text-muted">Reference: {bill.reference}</p>
         </div>
         <div className="border-t border-line pt-3">
           <p className="text-xs font-medium text-muted">{bill.description}</p>
@@ -194,7 +198,7 @@ function PayFlow() {
         <div className="flex items-center justify-between text-sm">
           <span className="flex items-center gap-1.5 font-semibold text-ink">
             {above ? <Clock className="size-4 text-attention" aria-hidden /> : <Check className="size-4 text-calm" aria-hidden />}
-            {above ? "Boven de limiet" : "Binnen de limiet"}
+            {above ? `Above the €${limit} limit` : `Within the €${limit} limit`}
           </span>
           <span className="tabular-nums text-muted">
             {euro(bill.amount)} / €{limit}
@@ -204,12 +208,14 @@ function PayFlow() {
           <div className={cx("h-full rounded-full", above ? "bg-attention" : "bg-calm")} style={{ width: `${Math.min(100, (bill.amount / limit) * 100)}%` }} />
         </div>
         <p className="text-xs text-ink">
-          {above ? `${name} stelde een limiet van €${limit} per betaling in. Voor dit bedrag vraagt u eerst haar goedkeuring.` : `${name} stelde een limiet van €${limit} per betaling in.`}
+          {above
+            ? `This is ${euro(bill.amount - limit)} more than the limit ${name} set. You can't pay it yourself: ${name} approves it first.`
+            : `${name} set a limit of €${limit} per payment. You can pay this bill yourself.`}
         </p>
       </Card>
 
       <p className="mt-3 flex items-start gap-2 px-1 text-xs text-muted">
-        <BellRing className="mt-0.5 size-3.5 shrink-0" aria-hidden /> {name} krijgt een melding en de betaling komt in het logboek, met uw naam erbij.
+        <BellRing className="mt-0.5 size-3.5 shrink-0" aria-hidden /> {name} is notified, and the payment appears in the activity log under your name.
       </p>
 
       {phase === "signing" ? (
@@ -218,8 +224,8 @@ function PayFlow() {
             <Fingerprint className="size-8" aria-hidden />
             <Spinner className="absolute -right-1 -top-1 size-5 text-brand" />
           </span>
-          <p className="font-semibold">Bevestig met uw KBC-app</p>
-          <p className="text-xs text-muted">We vragen uw eigen handtekening, als {fullName(viewer)}.</p>
+          <p className="font-semibold">Confirm in KBC Mobile</p>
+          <p className="text-xs text-muted">Sign with your own fingerprint or PIN, as {fullName(viewer)}.</p>
         </Card>
       ) : above ? (
         <Button
@@ -234,7 +240,7 @@ function PayFlow() {
             setPhase("approval-sent");
           }}
         >
-          Vraag goedkeuring aan {name}
+          Ask {name} for approval
         </Button>
       ) : (
         <Button
@@ -248,7 +254,7 @@ function PayFlow() {
             setPhase("done");
           }}
         >
-          <ShieldCheck className="size-4" aria-hidden /> Betaal namens {name}
+          <ShieldCheck className="size-4" aria-hidden /> Pay for {name}
         </Button>
       )}
     </div>
@@ -256,7 +262,7 @@ function PayFlow() {
 }
 
 function BillStatus({ bill, name }: { bill: Bill; name: string }) {
-  if (bill.status === "paid") return <Badge tone="calm">betaald</Badge>;
-  if (bill.status === "awaiting-approval") return <Badge tone="attention">wacht op {name}</Badge>;
-  return <Badge>niet goedgekeurd</Badge>;
+  if (bill.status === "paid") return <Badge tone="calm">paid</Badge>;
+  if (bill.status === "awaiting-approval") return <Badge tone="attention">waiting for {name}</Badge>;
+  return <Badge>declined</Badge>;
 }

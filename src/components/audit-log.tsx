@@ -9,7 +9,7 @@ const KIND_ICON = { payment: CreditCard, request: Send, access: KeyRound, alert:
 
 export function AuditLog({ entries, large, limit }: { entries: AuditEntry[]; large?: boolean; limit?: number }) {
   const list = limit ? entries.slice(0, limit) : entries;
-  if (list.length === 0) return <p className={cx("p-3 text-muted", large ? "text-lg" : "text-sm")}>Nog niets gebeurd.</p>;
+  if (list.length === 0) return <p className={cx("p-3 text-muted", large ? "text-lg" : "text-sm")}>Nothing has happened yet.</p>;
   return (
     <ol className="divide-y divide-line">
       {list.map((e) => {
@@ -29,7 +29,7 @@ export function AuditLog({ entries, large, limit }: { entries: AuditEntry[]; lar
             </div>
             {e.amount !== undefined && (
               <span className={cx("shrink-0 font-bold tabular-nums text-ink", large ? "text-lg" : "text-sm")}>
-                €{e.amount.toLocaleString("nl-BE", { minimumFractionDigits: 2 })}
+                €{e.amount.toLocaleString("en-GB", { minimumFractionDigits: 2 })}
               </span>
             )}
           </li>
