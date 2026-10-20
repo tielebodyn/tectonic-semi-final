@@ -33,21 +33,25 @@ export function LogoMark({ tone = "color", className }: { tone?: Tone; className
   );
 }
 
-/** App icon: the white mark on a navy rounded square. */
-export function LogoIcon({ className }: { className?: string }) {
+/** App icon: the white mark on a navy rounded square. `onDark` inverts it for navy headers. */
+export function LogoIcon({ className, onDark }: { className?: string; onDark?: boolean }) {
   return (
-    <span className={cx("inline-flex shrink-0 items-center justify-center rounded-[28%] bg-[#063f6b]", className)} aria-hidden>
-      <LogoMark tone="white" className="w-[68%]" />
+    <span className={cx("inline-flex shrink-0 items-center justify-center rounded-[28%]", onDark ? "bg-white" : "bg-[#063f6b]", className)} aria-hidden>
+      <LogoMark tone={onDark ? "color" : "white"} className="w-[68%]" />
     </span>
   );
 }
 
-/** Mark plus wordmark. `onDark` uses white for both, for navy headers. */
+/** Icon plus wordmark. `onDark` inverts the icon and uses white text, for navy headers. */
 export function Logo({ className, onDark, size = "md" }: { className?: string; onDark?: boolean; size?: "sm" | "md" | "lg" }) {
-  const sizes = { sm: { mark: "h-5", text: "text-[19px]" }, md: { mark: "h-7", text: "text-2xl" }, lg: { mark: "h-10", text: "text-[34px]" } };
+  const sizes = {
+    sm: { icon: "size-7", text: "text-[19px]", gap: "gap-2" },
+    md: { icon: "size-10", text: "text-2xl", gap: "gap-2.5" },
+    lg: { icon: "size-14", text: "text-[34px]", gap: "gap-3" },
+  };
   return (
-    <span className={cx("inline-flex items-center gap-2", className)} aria-label="Mantel">
-      <LogoMark tone={onDark ? "white" : "color"} className={cx("w-auto", sizes[size].mark)} />
+    <span className={cx("inline-flex items-center", sizes[size].gap, className)} aria-label="Mantel">
+      <LogoIcon onDark={onDark} className={sizes[size].icon} />
       <span className={cx("font-logo font-semibold leading-none tracking-[-0.01em]", sizes[size].text, onDark ? "text-white" : "text-[#063f6b]")} aria-hidden>
         Mantel
       </span>

@@ -26,7 +26,7 @@ function SignalOnboarding() {
 
   return (
     <div className="flex min-h-full flex-col bg-white">
-      <SeniorHeader label="KBC" />
+      <SeniorHeader />
       <main className="flex flex-1 flex-col px-5 pb-10 pt-2 text-xl leading-relaxed">
         {step === "message" && (
           <>
