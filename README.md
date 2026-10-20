@@ -5,6 +5,8 @@ while the parent decides who can help and how. Everything runs on dummy data in 
 
 ## Run it
 
+Use the Node version in `.nvmrc` (`nvm use`), then:
+
 ```bash
 npm install
 npm run dev
