@@ -25,6 +25,8 @@ export type Member = {
   since: string;
   /** Joined via itsme without a KBC account */
   guest: boolean;
+  /** What this person may pay without asking (only for the pay role) */
+  limit?: number;
 };
 
 export type Rule = {

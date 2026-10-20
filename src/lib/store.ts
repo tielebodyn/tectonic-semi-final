@@ -218,7 +218,7 @@ export const actions = {
   },
   activateMantel(
     elder: ElderId,
-    people: { personId: PersonId; relation: string; role: RoleId }[],
+    people: { personId: PersonId; relation: string; role: RoleId; limit?: number }[],
     rules: Omit<Rule, "id">[],
     limit: number,
   ) {
@@ -234,6 +234,7 @@ export const actions = {
           status: p.personId === "tom" ? "invited" : "active",
           since: today,
           guest: !isCustomer,
+          ...(p.limit !== undefined && { limit: p.limit }),
         };
       });
       let next: DemoState = {
@@ -364,6 +365,13 @@ export const actions = {
         ...s,
         bills: { ...s.bills, [elder]: s.bills[elder].map((b) => (b.id === billId ? { ...b, status: "awaiting-approval" } : b)) },
         approvals: [...s.approvals.filter((a) => a.billId !== billId), { id: uid("ap"), elder, billId, requestedBy: by, status: "pending" }],
+        push: {
+          id: uid("p"),
+          title: `${firstName(by)} has a question`,
+          body: `May ${firstName(by)} pay ${bill.payee}? Tap to answer.`,
+          href: "/maria/goedkeuren",
+          for: elder,
+        },
       };
       return log(next, elder, {
         actor: by,
@@ -439,6 +447,11 @@ export const actions = {
   // Demo control -----------------------------------------------------------------
   setTour(tour: DemoState["tour"]) {
     set((s) => ({ ...s, tour }));
+  },
+  /** Free browsing: Maria's Mantel is set up, no script. */
+  startFree(viewer: PersonId) {
+    actions.prepareStep(4);
+    set((s) => ({ ...s, tour: null, viewer, activeElder: "maria" }));
   },
   /** Make sure Maria's Mantel exists with the standard circle (for skipped steps). */
   ensureMariaMantel() {

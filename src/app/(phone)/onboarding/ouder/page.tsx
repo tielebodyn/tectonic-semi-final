@@ -55,13 +55,14 @@ function ParentOnboarding() {
   const [history, setHistory] = useState<Screen[]>([]);
   const [selectedLocal, setSelected] = useState<PersonId[]>(invitedBy ? [invitedBy] : []);
   const [rolesLocal, setRoles] = useState<Partial<Record<PersonId, RoleId>>>({});
-  const [limitLocal, setLimit] = useState(500);
+  const [limitsLocal, setLimits] = useState<Partial<Record<PersonId, number>>>({});
   // A guided demo step decides what this flow shows.
   const scene = useScene();
   const screen = (scene?.["ouder.screen"] as Screen | undefined) ?? screenLocal;
   const selected = (scene?.["ouder.selected"] as PersonId[] | undefined) ?? selectedLocal;
   const roles = (scene?.["ouder.roles"] as Partial<Record<PersonId, RoleId>> | undefined) ?? rolesLocal;
-  const limit = (scene?.["ouder.limit"] as number | undefined) ?? limitLocal;
+  const sceneLimit = scene?.["ouder.limit"] as number | undefined;
+  const limitFor = (id: PersonId) => sceneLimit ?? limitsLocal[id] ?? 500;
   const [ruleOn, setRuleOn] = useState({ fraud: true, unpaid: false, hospital: false });
 
   const go = (next: Screen) => {
@@ -138,7 +139,7 @@ function ParentOnboarding() {
         {screen.kind === "people" && (
           <>
             <h1 className="text-3xl font-bold">Who would you like to choose?</h1>
-            <p className="mt-2 text-muted">Tap each person you trust.</p>
+            <p className="mt-2 text-muted">You can choose more than one. Tap Continue when you’re done.</p>
             <div className="mt-6 space-y-3">
               {CANDIDATES.map((c) => {
                 const on = selected.includes(c.id);
@@ -174,7 +175,7 @@ function ParentOnboarding() {
             </div>
             <div className="mt-auto pt-8">
               <Button size="xl" full disabled={selected.length === 0} onClick={() => go({ kind: "role", i: 0 })}>
-                Continue
+                {selected.length === 0 ? "Choose at least one person" : `Continue with ${names(CANDIDATES.filter((c) => selected.includes(c.id)).map((c) => c.id))}`}
               </Button>
             </div>
           </>
@@ -184,6 +185,9 @@ function ParentOnboarding() {
           <RoleScreen
             key={people[screen.i].id}
             id={people[screen.i].id}
+            step={screen.i}
+            people={people.map((p) => p.id)}
+            roles={roles}
             current={roles[people[screen.i].id]}
             onPick={(role) => {
               const id = people[screen.i].id;
@@ -193,30 +197,21 @@ function ParentOnboarding() {
           />
         )}
 
-        {screen.kind === "limit" && (
-          <>
-            <h1 className="text-3xl font-bold leading-tight">
-              How much may {firstName(people[screen.i].id)} pay without asking you?
-            </h1>
-            <div className="mt-6 space-y-3">
-              {LIMITS.map((l) => (
-                <button
-                  key={l}
-                  type="button"
-                  onClick={() => {
-                    setLimit(l);
-                    if (screen.i + 1 < people.length) go({ kind: "role", i: screen.i + 1 });
-                    else go({ kind: "rules" });
-                  }}
-                  className={cx("flex w-full items-center justify-between rounded-3xl p-5 text-left ring-2 ring-inset", limit === l ? "bg-brand-mist ring-brand" : "ring-line")}
-                >
-                  <span className="text-3xl font-bold text-ink">{euro0(l)}</span>
-                  {l === 500 && <span className="text-lg font-semibold text-muted">Most popular</span>}
-                </button>
-              ))}
-            </div>
-            <p className="mt-6 text-ink">Anything more, we ask you first. You get an alert for every payment.</p>
-          </>
+        {screen.kind === "limit" && people[screen.i] && (
+          <LimitScreen
+            key={people[screen.i].id}
+            id={people[screen.i].id}
+            step={screen.i}
+            people={people.map((p) => p.id)}
+            roles={roles}
+            initial={limitFor(people[screen.i].id)}
+            onPick={(l) => {
+              const id = people[screen.i].id;
+              setLimits((m) => ({ ...m, [id]: l }));
+              if (screen.i + 1 < people.length) go({ kind: "role", i: screen.i + 1 });
+              else go({ kind: "rules" });
+            }}
+          />
         )}
 
         {screen.kind === "rules" && (
@@ -262,7 +257,7 @@ function ParentOnboarding() {
                       <RoleBadge role={role} size="lg" />
                     </div>
                     <p className="mt-3 text-ink">
-                      {role === "handelen" ? `Can pay bills up to ${euro0(limit)}.` : ROLE_OPTIONS.find((o) => o.role === role)!.text(firstName(p.id))}
+                      {role === "handelen" ? `Can pay bills up to ${euro0(limitFor(p.id))} without asking you.` : ROLE_OPTIONS.find((o) => o.role === role)!.text(firstName(p.id))}
                     </p>
                   </div>
                 );
@@ -285,9 +280,14 @@ function ParentOnboarding() {
                   await wait(1800);
                   actions.activateMantel(
                     "maria",
-                    people.map((p) => ({ personId: p.id, relation: p.relation, role: roles[p.id] ?? "meldingen" })),
+                    people.map((p) => ({
+                      personId: p.id,
+                      relation: p.relation,
+                      role: roles[p.id] ?? "meldingen",
+                      ...(roles[p.id] === "handelen" && { limit: limitFor(p.id) }),
+                    })),
                     buildRules(),
-                    limit,
+                    actors.length ? Math.max(...actors.map(limitFor)) : 500,
                   );
                   setScreen({ kind: "done" });
                 }}
@@ -331,10 +331,54 @@ function ParentOnboarding() {
   );
 }
 
-function RoleScreen({ id, current, onPick }: { id: PersonId; current?: RoleId; onPick: (r: RoleId) => void }) {
+/** Shows whose turn it is when several people are chosen, and what was already decided for the others. */
+function PeopleProgress({ step, people, roles }: { step: number; people: PersonId[]; roles: Partial<Record<PersonId, RoleId>> }) {
+  if (people.length < 2) return null;
+  return (
+    <div className="mb-5">
+      <p className="text-lg font-semibold text-muted">
+        Person {step + 1} of {people.length}
+      </p>
+      <div className="mt-2 flex items-center gap-2">
+        {people.map((id, i) => (
+          <span
+            key={id}
+            className={cx(
+              "flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-base font-semibold ring-2 ring-inset",
+              i === step ? "bg-brand-mist ring-brand text-ink" : i < step ? "ring-line text-ink" : "ring-line text-faint",
+            )}
+          >
+            <Avatar id={id} size="sm" />
+            {firstName(id)}
+            {i < step && roles[id] && <Check className="size-4 text-calm" strokeWidth={3} aria-label="done" />}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RoleScreen({
+  id,
+  step,
+  people,
+  roles,
+  current,
+  onPick,
+}: {
+  id: PersonId;
+  step: number;
+  people: PersonId[];
+  roles: Partial<Record<PersonId, RoleId>>;
+  current?: RoleId;
+  onPick: (r: RoleId) => void;
+}) {
   const name = firstName(id);
+  const [picked, setPicked] = useState<RoleId | undefined>(current);
+  const next = people[step + 1];
   return (
     <>
+      <PeopleProgress step={step} people={people} roles={roles} />
       <div className="flex items-center gap-3">
         <Avatar id={id} size="xl" />
       </div>
@@ -342,21 +386,103 @@ function RoleScreen({ id, current, onPick }: { id: PersonId; current?: RoleId; o
       <div className="mt-6 space-y-3">
         {ROLE_OPTIONS.map((o) => {
           const Icon = o.icon;
+          const on = picked === o.role;
           return (
             <button
               key={o.role}
               type="button"
-              onClick={() => onPick(o.role)}
-              className={cx("flex w-full items-start gap-4 rounded-3xl p-5 text-left ring-2 ring-inset transition-colors", current === o.role ? "bg-brand-mist ring-brand" : "ring-line hover:bg-canvas")}
+              onClick={() => setPicked(o.role)}
+              aria-pressed={on}
+              className={cx("flex w-full items-start gap-4 rounded-3xl p-5 text-left ring-2 ring-inset transition-colors", on ? "bg-brand-mist ring-brand" : "ring-line hover:bg-canvas")}
             >
               <Icon className="mt-1 size-8 shrink-0 text-navy" aria-hidden />
-              <span>
+              <span className="flex-1">
                 <span className="block text-2xl font-bold leading-snug text-ink">{o.title}</span>
                 <span className="mt-1 block text-lg text-muted">{o.text(name)}</span>
+              </span>
+              <span className={cx("mt-1 flex size-8 shrink-0 items-center justify-center rounded-full ring-2 ring-inset", on ? "bg-navy text-white ring-navy" : "ring-line")}>
+                {on && <Check className="size-5" strokeWidth={3} aria-hidden />}
               </span>
             </button>
           );
         })}
+      </div>
+      <div className="mt-auto pt-8">
+        <Button size="xl" full disabled={!picked} onClick={() => picked && onPick(picked)}>
+          {!picked ? `Choose what ${name} may do` : picked === "handelen" ? "Next: choose an amount" : next ? `Next: ${firstName(next)}` : "Continue"}
+        </Button>
+      </div>
+    </>
+  );
+}
+
+function LimitScreen({
+  id,
+  step,
+  people,
+  roles,
+  initial,
+  onPick,
+}: {
+  id: PersonId;
+  step: number;
+  people: PersonId[];
+  roles: Partial<Record<PersonId, RoleId>>;
+  initial: number;
+  onPick: (limit: number) => void;
+}) {
+  const name = firstName(id);
+  const [limit, setLimit] = useState(initial);
+  const [custom, setCustom] = useState(LIMITS.includes(initial) ? "" : String(initial));
+  const customOn = custom !== "";
+  const next = people[step + 1];
+  return (
+    <>
+      <PeopleProgress step={step} people={people} roles={roles} />
+      <h1 className="text-3xl font-bold leading-tight">How much may {name} pay without asking you?</h1>
+      <div className="mt-6 space-y-3">
+        {LIMITS.map((l) => (
+          <button
+            key={l}
+            type="button"
+            onClick={() => {
+              setLimit(l);
+              setCustom("");
+            }}
+            aria-pressed={!customOn && limit === l}
+            className={cx("flex w-full items-center justify-between rounded-3xl p-5 text-left ring-2 ring-inset", !customOn && limit === l ? "bg-brand-mist ring-brand" : "ring-line")}
+          >
+            <span className="text-3xl font-bold text-ink">{euro0(l)}</span>
+            {l === 500 && <span className="text-lg font-semibold text-muted">Most popular</span>}
+          </button>
+        ))}
+        <label className={cx("flex w-full items-center gap-3 rounded-3xl p-5 ring-2 ring-inset", customOn ? "bg-brand-mist ring-brand" : "ring-line")}>
+          <span className="text-xl font-semibold text-ink">Other amount</span>
+          <span className="ml-auto flex items-center gap-1 text-3xl font-bold text-ink">
+            €
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              step={10}
+              placeholder="…"
+              value={custom}
+              onChange={(e) => {
+                setCustom(e.target.value);
+                const n = Math.round(Number(e.target.value));
+                if (n > 0) setLimit(n);
+              }}
+              className="w-32 rounded-xl bg-white px-2 py-1 text-right outline-none ring-2 ring-inset ring-line focus:ring-brand"
+              aria-label={`Other amount for ${name}`}
+            />
+          </span>
+        </label>
+      </div>
+      <p className="mt-6 text-ink">Anything more, we ask you first. You get an alert for every payment.</p>
+      <div className="mt-auto pt-8">
+        <Button size="xl" full disabled={customOn && !(Number(custom) > 0)} onClick={() => onPick(limit)}>
+          {next ? `${euro0(limit)} for ${name} · Next: ${firstName(next)}` : `${euro0(limit)} for ${name} · Continue`}
+        </Button>
       </div>
     </>
   );
