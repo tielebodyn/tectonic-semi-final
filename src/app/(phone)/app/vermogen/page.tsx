@@ -96,7 +96,7 @@ export default function AssetsPage() {
       })}
 
       <SectionTitle>Care costs per month</SectionTitle>
-      <Card>
+      <Card data-tour="care-costs">
         <CareCostChart elder={elder} />
         <div className="mt-4 border-t border-line pt-3">
           <WhyThis label="Can these costs come down?">

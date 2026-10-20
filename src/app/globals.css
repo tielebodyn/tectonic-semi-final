@@ -2,6 +2,7 @@
 
 @theme inline {
   --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  --font-logo: var(--font-fredoka), var(--font-figtree), ui-sans-serif, sans-serif;
 }
 
 @theme {
@@ -55,6 +56,29 @@ body {
   background: var(--color-canvas);
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Guided path: the element the current step is about. */
+.tour-focus {
+  outline: 3px solid var(--color-brand);
+  outline-offset: 4px;
+  border-radius: 1.25rem;
+  animation: tour-pulse 1.6s ease-in-out infinite;
+}
+@keyframes tour-pulse {
+  0%,
+  100% {
+    outline-color: rgb(0 159 223 / 0.95);
+  }
+  50% {
+    outline-color: rgb(0 159 223 / 0.3);
+  }
+}
+
+/* While a path plays itself, taps in the phone do nothing. */
+[data-tour-lock] #phone-scroll :is(button, a, input, label),
+[data-tour-lock] #overlay-root :is(button, a, input, label) {
+  cursor: default;
 }
 
 /* Hide scrollbars inside the phone frame, keep scrolling. */

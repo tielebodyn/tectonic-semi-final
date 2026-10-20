@@ -8,6 +8,8 @@ import { euro0 } from "@/lib/format";
 import { FRAUD_RULE, actions, useDemo } from "@/lib/store";
 import type { PersonId, RoleId, Rule } from "@/lib/types";
 import { Avatar, Button, RoleBadge, Spinner, SuccessMark, Toggle, cx, toast, wait } from "@/components/ui";
+import { useScene } from "@/lib/tour";
+import { Logo } from "@/components/logo";
 
 const CANDIDATES: { id: PersonId; relation: string }[] = [
   { id: "sarah", relation: "Daughter" },
@@ -49,11 +51,17 @@ function ParentOnboarding() {
   const s = useDemo();
   const router = useRouter();
   const invitedBy = s.pendingInvite?.elder === "maria" ? s.pendingInvite.by : null;
-  const [screen, setScreen] = useState<Screen>({ kind: "intro" });
+  const [screenLocal, setScreen] = useState<Screen>({ kind: "intro" });
   const [history, setHistory] = useState<Screen[]>([]);
-  const [selected, setSelected] = useState<PersonId[]>(invitedBy ? [invitedBy] : []);
-  const [roles, setRoles] = useState<Partial<Record<PersonId, RoleId>>>({});
-  const [limit, setLimit] = useState(500);
+  const [selectedLocal, setSelected] = useState<PersonId[]>(invitedBy ? [invitedBy] : []);
+  const [rolesLocal, setRoles] = useState<Partial<Record<PersonId, RoleId>>>({});
+  const [limitLocal, setLimit] = useState(500);
+  // A guided demo step decides what this flow shows.
+  const scene = useScene();
+  const screen = (scene?.["ouder.screen"] as Screen | undefined) ?? screenLocal;
+  const selected = (scene?.["ouder.selected"] as PersonId[] | undefined) ?? selectedLocal;
+  const roles = (scene?.["ouder.roles"] as Partial<Record<PersonId, RoleId>> | undefined) ?? rolesLocal;
+  const limit = (scene?.["ouder.limit"] as number | undefined) ?? limitLocal;
   const [ruleOn, setRuleOn] = useState({ fraud: true, unpaid: false, hospital: false });
 
   const go = (next: Screen) => {
@@ -97,12 +105,7 @@ function ParentOnboarding() {
             <ArrowLeft className="size-7" aria-hidden /> Back
           </button>
         ) : (
-          <span className="flex items-center gap-2.5 text-navy">
-            <span className="flex size-10 items-center justify-center rounded-2xl bg-navy text-white">
-              <KeyRound className="size-5" aria-hidden />
-            </span>
-            <span className="text-xl font-bold">KBC Mantel</span>
-          </span>
+          <Logo size="md" />
         )}
       </header>
 

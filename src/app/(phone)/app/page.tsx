@@ -194,7 +194,7 @@ function FullDashboard() {
       </p>
 
       {fraudOpen && (
-        <Link href="/app/fraude" className="mt-4 block animate-fade-in">
+        <Link href="/app/fraude" data-tour="fraud-card" className="mt-4 block animate-fade-in rounded-[var(--radius-card)]">
           <Card className="space-y-2 bg-attention-soft ring-attention/30">
             <div className="flex items-center gap-2 text-sm font-bold text-attention">
               <BellRing className="size-4" aria-hidden /> Alert from {name}&rsquo;s rule

@@ -11,6 +11,7 @@ import { useCurrent } from "@/lib/use-current";
 import type { Bill } from "@/lib/types";
 import { AuditLog } from "@/components/audit-log";
 import { Avatar, Badge, Button, ButtonLink, Card, LockedNotice, SectionTitle, Spinner, SuccessMark, cx, wait } from "@/components/ui";
+import { useSceneValue } from "@/lib/tour";
 
 type Phase = "list" | "review" | "signing" | "done" | "sending" | "approval-sent";
 
@@ -26,8 +27,10 @@ export default function PayPage() {
 
 function PayFlow() {
   const { s, elder, elderPerson, canAct, viewer, limit, link } = useCurrent();
-  const [phase, setPhase] = useState<Phase>("list");
-  const [billId, setBillId] = useState<string | null>(null);
+  const [phaseLocal, setPhase] = useState<Phase>("list");
+  const [billLocal, setBillId] = useState<string | null>(null);
+  const phase = useSceneValue<Phase>("pay.phase") ?? phaseLocal;
+  const billId = useSceneValue<string>("pay.bill") ?? billLocal;
   const name = elderPerson.firstName;
 
   if (!link || !canAct) {
@@ -194,7 +197,7 @@ function PayFlow() {
         </div>
       </Card>
 
-      <Card className={cx("mt-3 space-y-2", above ? "bg-attention-soft ring-attention/25" : "bg-calm-soft ring-calm/20")}>
+      <Card data-tour="limit" className={cx("mt-3 space-y-2", above ? "bg-attention-soft ring-attention/25" : "bg-calm-soft ring-calm/20")}>
         <div className="flex items-center justify-between text-sm">
           <span className="flex items-center gap-1.5 font-semibold text-ink">
             {above ? <Clock className="size-4 text-attention" aria-hidden /> : <Check className="size-4 text-calm" aria-hidden />}

@@ -1,15 +1,32 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode, type SyntheticEvent } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { BatteryFull, BellRing, Signal, Wifi } from "lucide-react";
 import { actions, useDemo, useHydrated } from "@/lib/store";
-import { Toaster, cx } from "@/components/ui";
-import { TourAutoAdvance, TourBar, TourPanel } from "./tour-guide";
+import { Toaster, cx, toast } from "@/components/ui";
+import { TourBar, TourDirector, TourPanel } from "./tour-guide";
 
 export function PhoneShell({ children }: { children: ReactNode }) {
   const hydrated = useHydrated();
   const pathname = usePathname();
+  const touring = useDemo().tour !== null && hydrated;
+  const lastNudge = useRef(0);
+
+  // During a guided path the demo plays itself: taps inside the phone are swallowed
+  // (scrolling still works) and the jury moves on with Next and Previous.
+  const guard = (e: SyntheticEvent) => {
+    if (!touring) return;
+    const target = e.target as HTMLElement;
+    if (target.closest("[data-tour-guide]")) return;
+    if (!target.closest("button, a, input, textarea, select, label, [role=switch]")) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "click" && Date.now() - lastNudge.current > 3000) {
+      lastNudge.current = Date.now();
+      toast("Use Next to continue the demo.");
+    }
+  };
 
   // The phone has its own scroll container: start every screen at the top.
   useEffect(() => {
@@ -18,20 +35,25 @@ export function PhoneShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-dvh bg-canvas lg:flex lg:items-center lg:justify-center lg:gap-12 lg:bg-[radial-gradient(ellipse_at_top_left,#e3f3fc,transparent_55%),radial-gradient(ellipse_at_bottom_right,#e8eef8,transparent_50%)] lg:p-6">
-      {hydrated ? <TourPanel /> : <div className="hidden w-[320px] shrink-0 lg:block" aria-hidden />}
-      <div className="relative mx-auto flex h-dvh w-full flex-col overflow-hidden bg-canvas lg:mx-0 lg:h-[min(880px,calc(100dvh-48px))] lg:w-[400px] lg:shrink-0 lg:rounded-[52px] lg:shadow-[0_40px_80px_-20px_rgba(10,43,87,0.35)] lg:ring-[11px] lg:ring-[#0c1a2c]">
+      {hydrated ? <TourPanel /> : <div className="hidden w-[340px] shrink-0 lg:block" aria-hidden />}
+      <div
+        onClickCapture={guard}
+        onMouseDownCapture={guard}
+        data-tour-lock={touring ? "" : undefined}
+        className="relative mx-auto flex h-dvh w-full flex-col overflow-hidden bg-canvas lg:mx-0 lg:h-[min(880px,calc(100dvh-48px))] lg:w-[400px] lg:shrink-0 lg:rounded-[52px] lg:shadow-[0_40px_80px_-20px_rgba(10,43,87,0.35)] lg:ring-[11px] lg:ring-[#0c1a2c]"
+      >
         <StatusBar />
         <div id="phone-scroll" className="relative flex-1 overflow-y-auto overscroll-contain no-scrollbar">
           {hydrated ? children : null}
         </div>
         {hydrated && <TourBar />}
-        {hydrated && <TourAutoAdvance />}
+        {hydrated && <TourDirector />}
         <div id="overlay-root" className="pointer-events-none absolute inset-0 z-40" />
         {hydrated && <PushBanner />}
         <Toaster />
       </div>
       {/* Mirrors the guide panel so the phone stays centred on desktop. */}
-      <div className="hidden w-[320px] shrink-0 lg:block" aria-hidden />
+      <div className="hidden w-[340px] shrink-0 lg:block" aria-hidden />
     </div>
   );
 }

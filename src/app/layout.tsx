@@ -1,10 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Figtree } from "next/font/google";
+import { Figtree, Fredoka } from "next/font/google";
 import "./globals.css";
 
 const figtree = Figtree({
   variable: "--font-figtree",
   subsets: ["latin"],
+});
+
+// Rounded face for the Mantel wordmark.
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
+  subsets: ["latin"],
+  weight: ["600"],
 });
 
 export const metadata: Metadata = {
@@ -18,7 +25,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en-BE" className={`${figtree.variable} h-full antialiased`}>
+    <html lang="en-BE" className={`${figtree.variable} ${fredoka.variable} h-full antialiased`}>
       <body className="min-h-full font-sans">{children}</body>
     </html>
   );

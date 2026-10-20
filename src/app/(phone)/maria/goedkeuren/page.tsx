@@ -6,6 +6,7 @@ import { firstName } from "@/lib/data";
 import { euro } from "@/lib/format";
 import { actions, useDemo } from "@/lib/store";
 import { Avatar, Button, ButtonLink, SuccessMark, wait } from "@/components/ui";
+import { useSceneValue } from "@/lib/tour";
 
 export default function ApprovalPage() {
   const router = useRouter();
@@ -18,10 +19,14 @@ export default function ApprovalPage() {
 
 function Approval() {
   const s = useDemo();
-  const [phase, setPhase] = useState<"ask" | "busy" | "approved" | "declined">("ask");
+  const [phaseLocal, setPhase] = useState<"ask" | "busy" | "approved" | "declined">("ask");
   const [doneId, setDoneId] = useState<string | null>(null);
+  const scenePhase = useSceneValue<"approved" | "declined">("approve.phase");
+  const phase = scenePhase ?? phaseLocal;
 
-  const approval = s.approvals.find((a) => a.id === doneId) ?? s.approvals.find((a) => a.elder === "maria" && a.status === "pending");
+  const approval = scenePhase
+    ? s.approvals.filter((a) => a.elder === "maria").at(-1)
+    : (s.approvals.find((a) => a.id === doneId) ?? s.approvals.find((a) => a.elder === "maria" && a.status === "pending"));
 
   if (!approval) {
     return (

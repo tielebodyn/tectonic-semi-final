@@ -3,15 +3,18 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, ChevronDown, Clock, Home, KeyRound, Plus, ShieldCheck, Sparkles, Store, Users, Wallet } from "lucide-react";
+import { Bell, ChevronDown, Clock, Home, Plus, ShieldCheck, Sparkles, Store, Users, Wallet } from "lucide-react";
 import { PEOPLE } from "@/lib/data";
 import { actions } from "@/lib/store";
 import { useCurrent } from "@/lib/use-current";
 import { Avatar, Badge, RoleBadge, RoleExplainer, Sheet, cx } from "@/components/ui";
+import { useSceneValue } from "@/lib/tour";
+import { Logo } from "@/components/logo";
 
 export function AppHeader() {
   const { viewer, viewerPerson, links, link, elder, elderPerson, profile, role, limit, member, s } = useCurrent();
-  const [switcher, setSwitcher] = useState(false);
+  const [switcherLocal, setSwitcher] = useState(false);
+  const switcher = useSceneValue<boolean>("header.switcher") ?? switcherLocal;
   const [roleInfo, setRoleInfo] = useState(false);
   const router = useRouter();
 
@@ -20,11 +23,8 @@ export function AppHeader() {
   return (
     <header className="relative z-30 bg-navy px-4 pb-4 pt-3 text-white">
       <div className="flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2" aria-label="KBC Mantel, back to the demo paths">
-          <span className="flex size-7 items-center justify-center rounded-lg bg-white/10">
-            <KeyRound className="size-3.5" aria-hidden />
-          </span>
-          <span className="text-[15px] font-bold tracking-tight">KBC Mantel</span>
+        <Link href="/" className="flex items-center" aria-label="Mantel, back to the demo paths">
+          <Logo onDark size="sm" />
         </Link>
         <div className="flex items-center gap-2">
           <Link href={role === "meldingen" ? "/app" : "/app/signalen"} className="relative rounded-full p-2 hover:bg-white/10" aria-label="Alerts">
@@ -59,7 +59,7 @@ export function AppHeader() {
             <ChevronDown className="size-5 text-white/70" aria-hidden />
           </button>
 
-          <button type="button" onClick={() => setRoleInfo(true)} className="mt-2.5 flex w-full items-center gap-2 text-left text-xs text-white/80">
+          <button type="button" data-tour="role" onClick={() => setRoleInfo(true)} className="mt-2.5 flex w-full items-center gap-2 rounded-xl text-left text-xs text-white/80">
             {role ? (
               <>
                 <span>Your role:</span>

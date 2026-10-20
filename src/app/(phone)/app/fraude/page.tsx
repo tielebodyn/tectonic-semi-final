@@ -7,6 +7,7 @@ import { euro, when } from "@/lib/format";
 import { actions, FRAUD_RULE, FRAUD_TX } from "@/lib/store";
 import { useCurrent } from "@/lib/use-current";
 import { Avatar, Badge, Button, ButtonLink, Card, SectionTitle, Sheet, Spinner, SuccessMark, WhyThis, cx, toast, wait } from "@/components/ui";
+import { useSceneValue } from "@/lib/tour";
 
 export default function FraudPage() {
   const { s, role, elder, link } = useCurrent();
@@ -31,7 +32,7 @@ function RuleCard() {
   const notified = rule?.notify ?? [];
   const others = s.circles.maria.filter((m) => m.status === "active" && !notified.includes(m.personId));
   return (
-    <Card className="space-y-3">
+    <Card data-tour="rule-card" className="space-y-3">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted">Maria&rsquo;s rule</p>
       <p className="text-base font-semibold text-ink">&ldquo;{FRAUD_RULE}, let {notified.map(firstName).join(" and ")} know.&rdquo;</p>
       <div className="space-y-2">
@@ -58,7 +59,9 @@ function RuleCard() {
 
 function FullView() {
   const { s, canAct, viewer } = useCurrent();
-  const [calling, setCalling] = useState(false);
+  const [callingLocal, setCalling] = useState(false);
+  const calling = useSceneValue<boolean>("fraud.calling") ?? callingLocal;
+  const sceneConnected = useSceneValue<boolean>("fraud.connected");
   const blocking = s.fraud === "blocking";
 
   const block = async () => {
@@ -138,14 +141,25 @@ function FullView() {
       <RuleCard />
 
       <Sheet open={calling} onClose={() => setCalling(false)}>
-        <CallView viewerName={firstName(viewer)} onBlock={canAct ? block : undefined} onEnd={() => setCalling(false)} />
+        <CallView viewerName={firstName(viewer)} onBlock={canAct ? block : undefined} onEnd={() => setCalling(false)} forceConnected={sceneConnected} />
       </Sheet>
     </div>
   );
 }
 
-function CallView({ onBlock, onEnd, viewerName }: { onBlock?: () => void; onEnd: () => void; viewerName: string }) {
-  const [connected, setConnected] = useState(false);
+function CallView({
+  onBlock,
+  onEnd,
+  viewerName,
+  forceConnected,
+}: {
+  onBlock?: () => void;
+  onEnd: () => void;
+  viewerName: string;
+  forceConnected?: boolean;
+}) {
+  const [connectedLocal, setConnected] = useState(false);
+  const connected = forceConnected ?? connectedLocal;
   useEffect(() => {
     const t = setTimeout(() => {
       setConnected(true);

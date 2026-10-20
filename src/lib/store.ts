@@ -45,7 +45,7 @@ export type DemoState = {
   push: PushNotification | null;
   childSpace: { budget: number; checklist: string[] };
   /** The guided demo path the jury is clicking through */
-  tour: { path: number; step: number } | null;
+  tour: { path: number; step: number; finished?: boolean } | null;
 };
 
 const STORAGE_KEY = "kbc-mantel-demo";

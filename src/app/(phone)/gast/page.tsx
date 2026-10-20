@@ -2,10 +2,12 @@
 
 import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, ChevronRight, KeyRound, Lock, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Check, ChevronRight, Lock, ShieldCheck } from "lucide-react";
 import { ROLES } from "@/lib/data";
 import { actions, useDemo } from "@/lib/store";
+import { useSceneValue } from "@/lib/tour";
 import { Avatar, Button, ButtonLink, Card, RoleExplainer, Spinner, SuccessMark, wait } from "@/components/ui";
+import { Logo, LogoIcon } from "@/components/logo";
 
 type Step = "sms" | "landing" | "itsme" | "confirming" | "done";
 
@@ -21,7 +23,8 @@ export default function GuestPage() {
 function GuestFlow() {
   const s = useDemo();
   const router = useRouter();
-  const [step, setStep] = useState<Step>("sms");
+  const [stepLocal, setStep] = useState<Step>("sms");
+  const step = useSceneValue<Step>("gast.step") ?? stepLocal;
   const tom = s.mantel.maria === "active" ? s.circles.maria.find((m) => m.personId === "tom") : undefined;
 
   if (!tom || tom.status === "revoked") {
@@ -42,11 +45,9 @@ function GuestFlow() {
       <div className="flex min-h-full flex-col bg-white">
         <div className="flex items-center gap-3 border-b border-line px-4 py-3">
           <ArrowLeft className="size-5 text-brand" aria-hidden />
-          <span className="flex size-9 items-center justify-center rounded-full bg-navy text-white">
-            <KeyRound className="size-4" aria-hidden />
-          </span>
+          <LogoIcon className="size-9 !rounded-full" />
           <span>
-            <span className="block text-sm font-semibold">KBC Mantel</span>
+            <span className="block text-sm font-semibold">Mantel by KBC</span>
             <span className="block text-[11px] text-muted">Text message · today</span>
           </span>
         </div>
@@ -132,9 +133,7 @@ function GuestFlow() {
   return (
     <div className="flex min-h-full flex-col">
       <div className="bg-navy px-5 pb-8 pt-6 text-white">
-        <p className="flex items-center gap-2 text-sm font-semibold text-white/80">
-          <KeyRound className="size-4" aria-hidden /> KBC Mantel
-        </p>
+        <Logo onDark size="sm" />
         <div className="mt-6 flex items-center gap-3">
           <Avatar id="maria" size="xl" ring />
           <div>

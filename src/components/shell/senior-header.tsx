@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, KeyRound } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { LogoIcon } from "@/components/logo";
 
 /** Large, calm header for the elderly person's own screens. */
 export function SeniorHeader({ backHref, label = "My Mantel" }: { backHref?: string; label?: string }) {
@@ -16,9 +17,7 @@ export function SeniorHeader({ backHref, label = "My Mantel" }: { backHref?: str
         </Link>
       ) : (
         <Link href="/" className="flex items-center gap-2.5 text-navy">
-          <span className="flex size-10 items-center justify-center rounded-2xl bg-navy text-white">
-            <KeyRound className="size-5" aria-hidden />
-          </span>
+          <LogoIcon className="size-10" />
           <span className="text-xl font-bold">{label}</span>
         </Link>
       )}

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { HeartHandshake, KeyRound, Mail, Pill, ShoppingCart, Stethoscope, Hospital, UserCheck, Undo2, Users } from "lucide-react";
 import { SeniorHeader } from "@/components/shell/senior-header";
 import { Button, WhyThis, toast } from "@/components/ui";
+import { useSceneValue } from "@/lib/tour";
 
 type Step = "message" | "noticed" | "question" | "explain" | "later";
 
@@ -19,7 +20,9 @@ export default function SignalOnboardingPage() {
 
 function SignalOnboarding() {
   const router = useRouter();
-  const [step, setStep] = useState<Step>("message");
+  const [stepLocal, setStep] = useState<Step>("message");
+  const step = useSceneValue<Step>("signal.step") ?? stepLocal;
+  const whyOpen = useSceneValue<boolean>("signal.why");
 
   return (
     <div className="flex min-h-full flex-col bg-white">
@@ -62,7 +65,7 @@ function SignalOnboarding() {
               ))}
             </ul>
             <div className="mt-6">
-              <WhyThis large>
+              <WhyThis large forceOpen={whyOpen}>
                 <p>We look at changes in your payments, so we can offer the right help in good time.</p>
                 <p className="mt-2 font-semibold">Only you can see this message. We don’t tell your family anything.</p>
               </WhyThis>

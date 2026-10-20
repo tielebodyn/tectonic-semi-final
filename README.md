@@ -11,8 +11,9 @@ npm run dev
 ```
 
 Open http://localhost:3000 (works on a phone too). The app opens on a choice of three guided paths.
-A small guide at the bottom of the screen tells the jury what to tap and why the step matters; "Next" (or "Skip") moves on,
-also when someone gets stuck. On a large screen the guide sits next to a phone frame instead.
+Each path plays itself: the jury only taps "Next" and "Previous" (or uses the arrow keys) and the app shows every
+screen, choice and payment in turn, with a short caption and why it matters. Taps inside the phone are ignored while a
+path runs. On a large screen the guide sits next to a phone frame; on a phone it sits at the bottom.
 
 All copy is in English, written in the tone of voice of kbc.be (English) and KBC Mobile: plain, calm, "you" and "we",
 British spelling, real KBC names (KBC Mobile, Kate, KBC Live, Secure4u, itsme).
@@ -32,8 +33,9 @@ Every step prepares the state it needs, so paths can be started in any order and
 
 - `src/lib/data.ts` — personas, assets, signals, partner services, care homes (static dummy data)
 - `src/lib/store.ts` — demo state (roles, rules, bills, audit log, fraud state) persisted in `localStorage`
-- `src/lib/tour.ts` — the three guided paths and their steps
+- `src/lib/tour.ts` — the three scripted paths: each step is a scene (screen, viewer, data effects, UI state)
 - `src/components/shell/tour-guide.tsx` — the guide (bottom strip on mobile, side panel on desktop)
+- `src/components/logo.tsx` — the Mantel logo (mark, wordmark, app icon) as SVG
 - `src/app/(phone)/app/*` — family app (dashboard, circle, assets, signals, services, pay, fraud, log)
 - `src/app/(phone)/maria/*` — the elderly person's senior-friendly screens (home, consent centre, approvals)
 - `src/app/(phone)/onboarding/*`, `src/app/(phone)/gast` — the four entry points

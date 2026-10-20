@@ -38,7 +38,7 @@ export default function ConsentCentre() {
           const p = PEOPLE[m.personId];
           const revoked = m.status === "revoked";
           return (
-            <div key={m.personId} className={cx("rounded-3xl p-5 ring-2 ring-inset", revoked ? "bg-canvas ring-line" : "bg-white ring-line")}>
+            <div key={m.personId} data-tour={`member-${m.personId}`} className={cx("rounded-3xl p-5 ring-2 ring-inset", revoked ? "bg-canvas ring-line" : "bg-white ring-line")}>
               <div className="flex items-center gap-4">
                 <Avatar id={m.personId} size="xl" />
                 <div className="min-w-0 flex-1">

@@ -172,8 +172,22 @@ export function Avatar({ id, size = "md", ring }: { id: PersonId; size?: "sm" | 
 // ---------------------------------------------------------------------------
 // Transparency
 
-export function WhyThis({ children, label = "Why am I seeing this?", defaultOpen = false, large }: { children: ReactNode; label?: string; defaultOpen?: boolean; large?: boolean }) {
-  const [open, setOpen] = useState(defaultOpen);
+export function WhyThis({
+  children,
+  label = "Why am I seeing this?",
+  defaultOpen = false,
+  large,
+  forceOpen,
+}: {
+  children: ReactNode;
+  label?: string;
+  defaultOpen?: boolean;
+  large?: boolean;
+  /** Set by a guided demo step */
+  forceOpen?: boolean;
+}) {
+  const [openLocal, setOpen] = useState(defaultOpen);
+  const open = forceOpen ?? openLocal;
   return (
     <div>
       <button

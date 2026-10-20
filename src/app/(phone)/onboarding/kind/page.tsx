@@ -7,6 +7,7 @@ import { shortDate } from "@/lib/format";
 import { actions, useDemo } from "@/lib/store";
 import { ChildSpace } from "@/components/child-space";
 import { Button, Card, cx, wait } from "@/components/ui";
+import { LogoMark } from "@/components/logo";
 
 type Step = "intro" | "who" | "value" | "invite" | "waiting";
 
@@ -42,7 +43,7 @@ function ChildOnboarding() {
           </button>
         )}
         <span className="flex items-center gap-2 text-[15px] font-bold">
-          <KeyRound className="size-4" aria-hidden /> New Mantel
+          <LogoMark tone="white" className="h-4 w-auto" /> New Mantel
         </span>
         <span className="ml-auto text-xs text-white/70">{["intro", "who", "value", "invite", "waiting"].indexOf(step) + 1}/5</span>
       </header>

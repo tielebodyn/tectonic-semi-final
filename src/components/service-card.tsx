@@ -8,13 +8,16 @@ import { euro, euro0 } from "@/lib/format";
 import { actions } from "@/lib/store";
 import { useCurrent } from "@/lib/use-current";
 import { Badge, Button, Card, Sheet, SuccessMark, Toggle, WhyThis, cx, toast, wait } from "@/components/ui";
+import { useSceneValue } from "@/lib/tour";
 
 export function ServiceCard({ service, recommended }: { service: Service; recommended: boolean }) {
   const { s, elder, elderPerson, viewer, link } = useCurrent();
   const connected = link?.state === "active";
   const why = service.why[elder];
   const requested = s.requested[elder].find((r) => r.serviceId === service.id);
-  const [open, setOpen] = useState(false);
+  const [openLocal, setOpen] = useState(false);
+  const sceneSheet = useSceneValue<string>("service.sheet");
+  const open = sceneSheet !== undefined ? sceneSheet === service.id : openLocal;
 
   return (
     <Card className="space-y-3">
@@ -89,7 +92,8 @@ function RequestSheet({
   elder: ReturnType<typeof useCurrent>["elder"];
   viewer: ReturnType<typeof useCurrent>["viewer"];
 }) {
-  const [phase, setPhase] = useState<"form" | "sending" | "done">("form");
+  const [phaseLocal, setPhase] = useState<"form" | "sending" | "done">("form");
+  const phase = useSceneValue<"form" | "done">("service.phase") ?? phaseLocal;
   const [moment, setMoment] = useState("This week");
   const [loan, setLoan] = useState(true);
 
@@ -147,7 +151,7 @@ function RequestSheet({
           </div>
 
           {service.loan && connected && (
-            <div className="space-y-3 rounded-2xl p-3 ring-1 ring-inset ring-brand/30">
+            <div data-tour="loan" className="space-y-3 rounded-2xl p-3 ring-1 ring-inset ring-brand/30">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-sm font-bold text-navy">Add a KBC Renovation Loan</p>

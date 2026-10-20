@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Copy, Handshake, HeartHandshake, KeyRound, Landmark, Layers, Map as MapIcon, ShieldCheck, Users } from "lucide-react";
+import { ArrowLeft, Copy, Handshake, HeartHandshake, Landmark, Layers, Map as MapIcon, ShieldCheck, Users } from "lucide-react";
 import { cx } from "@/components/ui";
+import { useSceneValue } from "@/lib/tour";
+import { LogoIcon } from "@/components/logo";
 
 type Metric = { value: number; prefix?: string; suffix?: string; decimals?: number; label: string; note: string };
 
@@ -62,7 +64,8 @@ const TEMPLATES = [
 ];
 
 export default function KbcView() {
-  const [tab, setTab] = useState<"win" | "scale">("win");
+  const [tabLocal, setTab] = useState<"win" | "scale">("win");
+  const tab = useSceneValue<"win" | "scale">("kbc.tab") ?? tabLocal;
 
   return (
     <div className="min-h-full bg-white">
@@ -72,9 +75,7 @@ export default function KbcView() {
             <ArrowLeft className="size-4" aria-hidden /> Customer view
           </Link>
           <span className="flex items-center gap-2 text-sm font-bold text-navy">
-            <span className="flex size-7 items-center justify-center rounded-lg bg-navy text-white">
-              <KeyRound className="size-3.5" aria-hidden />
-            </span>
+            <LogoIcon className="size-7" />
             KBC view
           </span>
         </div>
@@ -105,7 +106,8 @@ export default function KbcView() {
 }
 
 function TripleWin() {
-  const [open, setOpen] = useState("familie");
+  const [openLocal, setOpen] = useState("familie");
+  const open = useSceneValue<string>("kbc.open") ?? openLocal;
   return (
     <>
       <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand">Value</p>
@@ -117,7 +119,7 @@ function TripleWin() {
           const Icon = col.icon;
           const isOpen = open === col.id;
           return (
-            <section key={col.id} className="rounded-3xl bg-canvas p-4">
+            <section key={col.id} data-tour={`kbc-${col.id}`} className="rounded-3xl bg-canvas p-4">
               <button type="button" onClick={() => setOpen(isOpen ? "" : col.id)} className="flex w-full items-center gap-3 text-left" aria-expanded={isOpen}>
                 <span className={cx("flex size-11 shrink-0 items-center justify-center rounded-2xl", col.tone)}>
                   <Icon className="size-5" aria-hidden />
